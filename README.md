@@ -1,0 +1,2 @@
+# note
+Simple note capture
