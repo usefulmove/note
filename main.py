@@ -1,13 +1,15 @@
+#!/usr/bin/env python3
 import sys
 from datetime import datetime
 import duckdb
 
 def main():
-    ahora = datetime.now()
+    current_datetime = datetime.now()
     notes = sys.argv[1:]
 
+
     for note in notes:
-        print(f'  {ahora.strftime("%y.%m.%d %H:%M:%S")} | {note}')
+        print(f'  {current_datetime.strftime("%y.%m.%d %H:%M:%S")} | {note}')
 
 
     ## connect to notes database (or create if it doesn't exist)
@@ -31,12 +33,12 @@ def main():
             insert into coda.notes
                 (date, message)
             values
-                (cast('{ahora}' as timestamp), '{note}');
+                (cast('{current_datetime}' as timestamp), '{note}');
         """)
 
 
     ## read database contents and write out to console
-    result = con.sql("select * from notes;").pl()
+    result = con.execute("select * from notes;").pl()
     print(result)
 
 

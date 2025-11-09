@@ -1,0 +1,2 @@
+- move database to home folder so it won't matter from where the app is run.
+- add alias to bashrc
