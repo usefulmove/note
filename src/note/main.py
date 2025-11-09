@@ -9,6 +9,11 @@ def main():
     current_datetime = datetime.now()
 
 
+    ## no args - list notes
+    if len(sys.argv) == 1:
+        sys.argv += ['-list']
+
+
     ## version
     if sys.argv[1] in ('-version', '--version'):
         print(f'note {metadata.version("note")}')
@@ -86,7 +91,7 @@ def main():
 
 
     ## search
-    if sys.argv[1] in ('-s', '-search', '--search', '-f', '-find', '--find'):
+    if sys.argv[1] in ('-s', '-search', '--search', '-f', '-find', '--find', '-filter', '--filter'):
         # search database and output results
         match = sys.argv[2]
 
