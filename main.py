@@ -52,8 +52,10 @@ def main():
                 1, 2;
         """).fetchall()
 
+        print('')
         for e in db_entries:
             print(f'  {e[1].strftime("%y.%m.%d %H:%M")} | {e[0]} | {e[2]}')
+        print('')
 
         con.close()
         return
@@ -68,15 +70,43 @@ def main():
         return
 
 
-    ## delete note
+    ## delete note(s)
     if sys.argv[1] in ('-d', '-delete', '--delete'):
         # delete database entry
-        nid = sys.argv[2]
+        nids = sys.argv[2:]
 
-        con.execute(f"""
-            delete from {TABLE}
-            where {NID_COLUMN} = {nid};
-        """)
+        for nid in nids:
+            con.execute(f"""
+                delete from {TABLE}
+                where {NID_COLUMN} = {nid};
+            """)
+
+        con.close()
+        return
+
+
+    ## search
+    if sys.argv[1] in ('-s', '-search', '--search', '-f', '-find', '--find'):
+        # search database and output results
+        match = sys.argv[2]
+
+        search_results = con.execute(f"""
+            select
+                {NID_COLUMN},
+                {TIMESTAMP_COLUMN},
+                {MESSAGE_COLUMN}
+            from
+                {TABLE}
+            where
+                {MESSAGE_COLUMN} ilike '%{match}%'
+            order by
+                1, 2;
+        """).fetchall()
+
+        print('')
+        for e in search_results:
+            print(f'  {e[1].strftime("%y.%m.%d %H:%M")} | {e[0]} | {e[2]}')
+        print('')
 
         con.close()
         return
@@ -98,8 +128,10 @@ def main():
         """)
 
     # display output message
+    print('')
     for note in notes:
         print(f'  {current_datetime.strftime("%y.%m.%d %H:%M")} | {note} | ( added )')
+    print('')
 
 
     con.close() # close database connection
