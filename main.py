@@ -42,6 +42,15 @@ def main():
         return
 
 
+    ## clear notes
+    if sys.argv[1] in ('--clear', '--reset'):
+        # clear database
+        con.execute('delete from notes;')
+
+        con.close()
+        return
+
+
     notes = sys.argv[1:]
 
 
