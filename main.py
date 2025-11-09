@@ -2,8 +2,7 @@
 import sys
 from datetime import datetime
 import duckdb
-
-NOTE_VERSION = '0.0.1'
+from importlib import metadata
 
 
 def main():
@@ -12,7 +11,7 @@ def main():
 
     ## version
     if sys.argv[1] in ('--version'):
-        print(f'note {NOTE_VERSION}')
+        print(f'note {metadata.version("note")}')
         return
 
 
