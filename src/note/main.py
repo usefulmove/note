@@ -72,7 +72,6 @@ def main():
     if sys.argv[1] in ('-clear', '--clear', '-reset', '--reset'):
         # clear database
         con.execute(f'delete from {TABLE};')
-
         con.close()
         return
 
@@ -164,9 +163,44 @@ def main():
             where
                 {NID_COLUMN} = {nid};
         """
-
         con.execute(query)
         con.close()
+        return
+
+
+    ## rebase notes
+    if sys.argv[1] in ('-rebase', '--rebase'):
+        # update database nids
+        query = f"""
+            with n{NID_COLUMN} as (
+                    select
+                        row_number() over(order by {NID_COLUMN})
+                            as updated_{NID_COLUMN},
+                        {NID_COLUMN},
+                        {TIMESTAMP_COLUMN},
+                        {MESSAGE_COLUMN}
+                    from
+                        {TABLE}
+            )
+
+            update
+                {TABLE} n
+            set
+                {NID_COLUMN} = nn.updated_{NID_COLUMN}
+            from
+                n{NID_COLUMN} nn
+            where
+                n.{NID_COLUMN} = nn.{NID_COLUMN};
+        """
+        print(query)
+        con.execute(query)
+        con.close()
+        return
+
+
+    ## check for unknown option
+    if sys.argv[1].startswith('-'):
+        print(f'note: unknown option ({sys.argv[1]})')
         return
 
 
