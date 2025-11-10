@@ -192,7 +192,6 @@ def main():
             where
                 n.{NID_COLUMN} = nn.{NID_COLUMN};
         """
-        print(query)
         con.execute(query)
         con.close()
         return
