@@ -3,9 +3,22 @@ import sys
 import duckdb
 from importlib import metadata
 from . import notedb as db
+from rich.console import Console
+import re
 
 
 def main():
+    ## rich console settings
+    console = Console()
+    # colors
+    cdim = '#616161'
+    cemph = '#faf6e4'
+    cnorm = 'default'
+    
+    def color_tags(s: str) -> str:
+        return re.sub(r":([a-z]*):", f"[{cdim}]:\\1:[/{cdim}]", s)
+
+
     ## no args - list notes
     if len(sys.argv) == 1:
         sys.argv += ['-list']
@@ -13,7 +26,7 @@ def main():
 
     ## version
     if sys.argv[1] in ('-version', '--version'):
-        print(f'  note {metadata.version("note")}')
+        console.print(f'  [{cnorm}]note[/] [{cemph}]{metadata.version("note")}[/]')
         return
 
 
@@ -22,10 +35,14 @@ def main():
         # read database contents and write out to console
         notes = db.get_notes()
 
-        print()
-        for e in notes:
-            print(f'  {e[1].strftime("%y.%m.%d %H:%M")} | {e[0]} | {e[2]}')
-        print()
+        for nid, dt, msg in notes:
+            console.print(
+                f'  [{cdim}]{dt.strftime("%y.%m.%d %H:%M")}[/]' +
+                f' [{cdim}]|[/] ' +
+                f'[{cdim}]{nid}[/]' +
+                f' [{cdim}]|[/] ' +
+                f'[{cnorm}]{color_tags(msg)}[/]'
+            )
 
         return
 
@@ -51,10 +68,14 @@ def main():
 
         search_matches = db.get_note_matches(match)
 
-        print()
-        for e in search_matches:
-            print(f'  {e[1].strftime("%y.%m.%d %H:%M")} | {e[0]} | {e[2]}')
-        print()
+        for nid, dt, msg in search_matches:
+            console.print(
+                f'  [{cdim}]{dt.strftime("%y.%m.%d %H:%M")}[/]' +
+                f' [{cdim}]|[/] ' +
+                f'[{cdim}]{nid}[/]' +
+                f' [{cdim}]|[/] ' +
+                f'[{cnorm}]{color_tags(msg)}[/]'
+            )
 
         return
         
@@ -66,10 +87,14 @@ def main():
 
         search_matches = db.get_tag_matches(tag)
 
-        print()
-        for e in search_matches:
-            print(f'  {e[1].strftime("%y.%m.%d %H:%M")} | {e[0]} | {e[2]}')
-        print()
+        for nid, dt, msg in search_matches:
+            console.print(
+                f'  [{cdim}]{dt.strftime("%y.%m.%d %H:%M")}[/]' +
+                f' [{cdim}]|[/] ' +
+                f'[{cdim}]{nid}[/]' +
+                f' [{cdim}]|[/] ' +
+                f'[{cnorm}]{color_tags(msg)}[/]'
+            )
 
         return
 
@@ -93,7 +118,7 @@ def main():
 
     ## check for unknown option
     if sys.argv[1].startswith('-'):
-        print(f'  note: unknown option ({sys.argv[1]})')
+        console.print(f'  note: unknown option ([{cemph}]{sys.argv[1]})[/]')
         return
 
 
@@ -104,10 +129,11 @@ def main():
     db.add_entries(notes)
 
     # display confirmation message
-    print()
-    for note in notes:
-        print(f'  {note} | ( added )')
-    print()
+    for msg in notes:
+        console.print(
+            f'  [{cnorm}]{color_tags(msg)}[/]' +
+            f' [{cdim}]|[/] ' +
+            f'[{cnorm}](added)[/]')
 
 
 
