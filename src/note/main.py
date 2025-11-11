@@ -16,7 +16,7 @@ def main():
 
     ## version
     if sys.argv[1] in ('-version', '--version'):
-        print(f'note {metadata.version("note")}')
+        print(f'  note {metadata.version("note")}')
         return
 
 
@@ -27,20 +27,22 @@ def main():
     MESSAGE_COLUMN = 'message'
 
 
-    ## connect to notes database (or create if it doesn't exist)
-    con = duckdb.connect('~/.notes.db')
+    def get_db_connection() -> duckdb.DuckDBPyConnection:
+        ## connect to notes database (or create if it doesn't exist)
+        con = duckdb.connect('~/.notes.db')
 
+        ## create schema and notes table
+        con.execute(f'create schema if not exists {SCHEMA};')
+        con.execute(f'set schema = {SCHEMA};')
+        con.execute(f"""
+            create table if not exists {TABLE} (
+                {NID_COLUMN} integer,
+                {TIMESTAMP_COLUMN} timestamp,
+                {MESSAGE_COLUMN} varchar
+            );
+        """)
 
-    ## create schema and notes table
-    con.execute(f'create schema if not exists {SCHEMA};')
-    con.execute(f'set schema = {SCHEMA};')
-    con.execute(f"""
-        create table if not exists {TABLE} (
-            {NID_COLUMN} integer,
-            {TIMESTAMP_COLUMN} timestamp,
-            {MESSAGE_COLUMN} varchar
-        );
-    """)
+        return con
 
 
     ## list notes
@@ -57,38 +59,39 @@ def main():
                 1, 2;
         """
 
-        db_entries = con.execute(query).fetchall()
+        with get_db_connection() as con:
+            db_entries = con.execute(query).fetchall()
 
         print('')
         for e in db_entries:
             print(f'  {e[1].strftime("%y.%m.%d %H:%M")} | {e[0]} | {e[2]}')
         print('')
 
-        con.close()
         return
 
 
     ## clear notes
     if sys.argv[1] in ('-clear', '--clear', '-reset', '--reset'):
         # clear database
-        con.execute(f'delete from {TABLE};')
-        con.close()
+        with get_db_connection as con:
+            con.execute(f'delete from {TABLE};')
+
         return
 
 
     ## delete note(s)
     if sys.argv[1] in ('-d', '-delete', '--delete', '-rm'):
-        # delete database entry
+        # delete selected database entries
         nids = sys.argv[2:]
 
-        for nid in nids:
-            query = f"""
-                delete from {TABLE}
-                where {NID_COLUMN} = {nid};
-            """
-            con.execute(query)
+        with get_db_connection() as con:
+            for nid in nids:
+                query = f"""
+                    delete from {TABLE}
+                    where {NID_COLUMN} = {nid};
+                """
+                con.execute(query)
 
-        con.close()
         return
 
 
@@ -110,14 +113,14 @@ def main():
                 1, 2;
         """
 
-        search_results = con.execute(query).fetchall()
+        with get_db_connection() as con:
+            search_results = con.execute(query).fetchall()
 
         print('')
         for e in search_results:
             print(f'  {e[1].strftime("%y.%m.%d %H:%M")} | {e[0]} | {e[2]}')
         print('')
 
-        con.close()
         return
         
 
@@ -139,14 +142,14 @@ def main():
                 1, 2;
         """
 
-        search_results = con.execute(query).fetchall()
+        with get_db_connection() as con:
+            search_results = con.execute(query).fetchall()
 
         print('')
         for e in search_results:
             print(f'  {e[1].strftime("%y.%m.%d %H:%M")} | {e[0]} | {e[2]}')
         print('')
 
-        con.close()
         return
 
 
@@ -163,8 +166,10 @@ def main():
             where
                 {NID_COLUMN} = {nid};
         """
-        con.execute(query)
-        con.close()
+
+        with get_db_connection() as con:
+            con.execute(query)
+
         return
 
 
@@ -192,32 +197,35 @@ def main():
             where
                 n.{NID_COLUMN} = nn.{NID_COLUMN};
         """
-        con.execute(query)
-        con.close()
+
+        with get_db_connection() as con:
+            con.execute(query)
+
         return
 
 
     ## check for unknown option
     if sys.argv[1].startswith('-'):
-        print(f'note: unknown option ({sys.argv[1]})')
+        print(f'  note: unknown option ({sys.argv[1]})')
         return
 
 
-    ## add notes
+    ## otherwise add notes
     notes = sys.argv[1:]
 
     # load notes into database
-    for note in notes:
-        query = f"""
-            insert into {SCHEMA}.{TABLE}
-                ({NID_COLUMN}, {TIMESTAMP_COLUMN}, {MESSAGE_COLUMN})
-            values (
-                (select max({NID_COLUMN}) from {TABLE}) + 1,
-                cast('{current_datetime}' as timestamp),
-                '{note}'
-            );
-        """
-        con.execute(query)
+    with get_db_connection() as con:
+        for note in notes:
+            query = f"""
+                insert into {SCHEMA}.{TABLE}
+                    ({NID_COLUMN}, {TIMESTAMP_COLUMN}, {MESSAGE_COLUMN})
+                values (
+                    (select max({NID_COLUMN}) from {TABLE}) + 1,
+                    cast('{current_datetime}' as timestamp),
+                    '{note}'
+                );
+            """
+            con.execute(query)
 
     # display output message
     print('')
@@ -225,8 +233,6 @@ def main():
         print(f'  {current_datetime.strftime("%H:%M")} | {note} | ( added )')
     print('')
 
-
-    con.close() # close database connection
 
 
 
