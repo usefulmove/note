@@ -1,5 +1,6 @@
-import duckdb
 from datetime import datetime
+import duckdb
+import re
 
 
 ## database schema
@@ -11,10 +12,10 @@ MESSAGE_COLUMN = 'message'
 
 
 def get_connection() -> duckdb.DuckDBPyConnection:
-    ## connect to database (or create if it doesn't exist)
+    # connect to database (or create if it doesn't exist)
     con = duckdb.connect('~/.notes.db')
 
-    ## create schema and notes table
+    # create schema and notes table
     con.execute(f'create schema if not exists {SCHEMA};')
     con.execute(f'set schema = {SCHEMA};')
     con.execute(f"""
@@ -28,17 +29,33 @@ def get_connection() -> duckdb.DuckDBPyConnection:
     return con
 
 
-def get_notes() -> list[tuple[int, datetime, str]]:
-    query = f"""
-        select
-            {NID_COLUMN},
-            {TIMESTAMP_COLUMN},
-            {MESSAGE_COLUMN}
-        from
-            {TABLE}
-        order by
-            1, 2;
-    """
+def get_notes(nids: list[str] = []) -> list[tuple[int, datetime, str]]:
+    if not nids:
+        # retrieve all notes
+        query = f"""
+            select
+                {NID_COLUMN},
+                {TIMESTAMP_COLUMN},
+                {MESSAGE_COLUMN}
+            from
+                {TABLE}
+            order by
+                1, 2;
+        """
+    else:
+        # retrieve selected nids
+        query = f"""
+            select
+                {NID_COLUMN},
+                {TIMESTAMP_COLUMN},
+                {MESSAGE_COLUMN}
+            from
+                {TABLE}
+            where
+                {NID_COLUMN} in ({re.sub(r'[\[\]]', '', str(nids))})
+            order by
+                1, 2;
+        """
 
     with get_connection() as con:
         entries = con.execute(query).fetchall()
