@@ -21,11 +21,26 @@ def main():
 
     ## no args - list notes ##
     if len(sys.argv) == 1:
-        sys.argv += ['-list']
+        # read database contents and write out to console
+        # ( ignore :later: tagged notes )
+        current_notes = db.get_tag_unmatches('later')
+
+        for nid, dt, msg in current_notes:
+            console.print(
+                f'  [{cdim}]{dt.strftime("%y.%m.%d %H:%M")}[/]' +
+                f' [{csep}]|[/] ' +
+                f'[{cdim}]{nid}[/]' +
+                f' [{csep}]|[/] ' +
+                f'[{cnorm}]{color_tags(msg)}[/]'
+            )
+
+        return
 
 
     ## version ##
-    if sys.argv[1] in ('-version', '--version'):
+    version_flags = ('-version', '--version')
+
+    if sys.argv[1] in version_flags:
         console.print(
             f'  [{cnorm}]note[/] [{cemph}]{metadata.version("note")}[/]'
         )
@@ -33,7 +48,9 @@ def main():
 
 
     ## list notes ##
-    if sys.argv[1] in ('-l', '-ls', '-list', '--list'):
+    list_flags = ('-l', '-ls', '-list', '--list')
+
+    if sys.argv[1] in list_flags:
         # read database contents and write out to console
         notes = db.get_notes()
 
@@ -49,14 +66,28 @@ def main():
         return
 
 
-    ## clear notes ##
-    if sys.argv[1] in ('-clear', '--clear', '-reset', '--reset'):
+    ## clear (remove all) notes ##
+    clear_flags = (
+        '-clear', '--clear',
+        '-reset', '--reset',
+        '-remove-all', '--remove-all',
+    )
+
+    if sys.argv[1] in clear_flags:
         db.clear_database()
         return
 
 
     ## delete note(s) ##
-    if sys.argv[1] in ('-d', '-delete', '--delete', '-rm', '-complete', '--coplete', '-done', '--done'):
+    delete_flags = (
+        '-d', '-delete', '--delete',
+        '-rm', '-remove', '--remove',
+        '-complete', '--complete',
+        '-done', '--done',
+        '-drop', '--drop',
+    )
+
+    if sys.argv[1] in delete_flags:
         # delete selected database entries
         note_ids = sys.argv[2:]
 
@@ -77,7 +108,13 @@ def main():
 
 
     ## search (general) ##
-    if sys.argv[1] in ('-s', '-search', '--search', '-f', '-fd', '-find', '--find', '-filter', '--filter'):
+    message_search_flags = (
+        '-s', '-search', '--search',
+        '-f', '-fd', '-find', '--find',
+        '-filter', '--filter',
+    )
+
+    if sys.argv[1] in message_search_flags:
         # search database and output results
         match = sys.argv[2]
 
@@ -96,7 +133,9 @@ def main():
         
 
     ## tag search ##
-    if sys.argv[1] in ('-t', '-tag', '--tag'):
+    tag_search_flags = ('-t', '-tag', '--tag')
+
+    if sys.argv[1] in tag_search_flags:
         # search database for tags and output results
         tag = sys.argv[2]
 
@@ -115,7 +154,12 @@ def main():
 
 
     ## update note ##
-    if sys.argv[1] in ('-u', '-update', '--update', '-e', '-edit', '--edit'):
+    update_flags = (
+        '-u', '-update', '--update',
+        '-e', '-edit', '--edit',
+    )
+
+    if sys.argv[1] in update_flags:
         note_id = sys.argv[2]
         message = sys.argv[3]
 
@@ -134,7 +178,9 @@ def main():
 
 
     ## append note ##
-    if sys.argv[1] in ('-append', '--append'):
+    append_flags = ('-append', '--append')
+
+    if sys.argv[1] in append_flags:
         note_id = sys.argv[2]
         s = sys.argv[3]
 
@@ -157,7 +203,9 @@ def main():
 
 
     ## rebase notes ##
-    if sys.argv[1] in ('-rebase', '--rebase'):
+    rebase_flags = ('-rebase', '--rebase')
+
+    if sys.argv[1] in rebase_flags:
         # update database nids
         db.rebase()
         return
@@ -194,6 +242,7 @@ def main():
             f' [{csep}]|[/] ' +
             f'[{cnorm}](added)[/]'
         )
+
 
 
 if __name__ == "__main__":

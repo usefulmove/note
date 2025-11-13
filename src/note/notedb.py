@@ -100,6 +100,26 @@ def get_note_matches(match: str) -> list[tuple[int, datetime, str]]:
     return matches
 
 
+def get_note_unmatches(unmatch: str) -> list[tuple[int, datetime, str]]:
+    query = f"""
+        select
+            {NID_COLUMN},
+            {TIMESTAMP_COLUMN},
+            {MESSAGE_COLUMN}
+        from
+            {TABLE}
+        where
+            {MESSAGE_COLUMN} not ilike '%{unmatch}%'
+        order by
+            1, 2;
+    """
+
+    with get_connection() as con:
+        unmatches = con.execute(query).fetchall()
+
+    return unmatches
+
+
 def get_tag_matches(tag: str) -> list[tuple[int, datetime, str]]:
     query = f"""
         select
@@ -118,6 +138,26 @@ def get_tag_matches(tag: str) -> list[tuple[int, datetime, str]]:
         matches = con.execute(query).fetchall()
 
     return matches
+
+
+def get_tag_unmatches(tag: str) -> list[tuple[int, datetime, str]]:
+    query = f"""
+        select
+            {NID_COLUMN},
+            {TIMESTAMP_COLUMN},
+            {MESSAGE_COLUMN}
+        from
+            {TABLE}
+        where
+            {MESSAGE_COLUMN} not ilike '%:{tag}:%'
+        order by
+            1, 2;
+    """
+
+    with get_connection() as con:
+        unmatches = con.execute(query).fetchall()
+
+    return unmatches
 
 
 def update_entry(nid: str, message: str) -> None:
