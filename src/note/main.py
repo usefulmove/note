@@ -48,7 +48,7 @@ def main():
 
 
     ## list notes ##
-    list_flags = ('-l', '-ls', 'ls', '-list', '--list', 'list')
+    list_flags = ('-l', 'l', '-ls', 'ls', '-list', '--list', 'list')
 
     if sys.argv[1] in list_flags:
         # read database contents and write out to console
@@ -80,7 +80,7 @@ def main():
 
     ## delete note(s) ##
     delete_flags = (
-        '-d', '-delete', '--delete', 'delete',
+        '-d', 'd', '-delete', '--delete', 'delete',
         '-rm', 'rm', '-remove', '--remove', 'remove',
         '-complete', '--complete', 'complete',
         '-done', '--done', 'done',
@@ -109,8 +109,8 @@ def main():
 
     ## search (general) ##
     message_search_flags = (
-        '-s', '-search', '--search', 'search',
-        '-f', '-fd', '-find', '--find', 'find',
+        '-s', 's', '-search', '--search', 'search',
+        '-f', '-fd', 'fd', '-find', '--find', 'find',
         '-filter', '--filter', 'filter',
     )
 
@@ -155,8 +155,8 @@ def main():
 
     ## update note ##
     update_flags = (
-        '-u', '-update', '--update', 'update',
-        '-e', '-edit', '--edit', 'edit',
+        '-u', 'u', '-update', '--update', 'update',
+        '-e', 'e', '-edit', '--edit', 'edit',
     )
 
     if sys.argv[1] in update_flags:
