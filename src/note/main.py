@@ -133,7 +133,7 @@ def main():
         
 
     ## tag search ##
-    tag_search_flags = ('-t', '-tag', '--tag', 'tag')
+    tag_search_flags = ('-t', 't', '-tag', '--tag', 'tag')
 
     if sys.argv[1] in tag_search_flags:
         # search database for tags and output results
