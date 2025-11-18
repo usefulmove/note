@@ -211,37 +211,44 @@ def main():
         return
 
 
-    ## check for unknown option ##
-    if sys.argv[1].startswith('-'):
-        console.print(f'  note: unknown option ([{cdim}]{sys.argv[1]}[/])')
+    ## add notes ##
+    add_flags = (
+        '-a', 'a',
+        '-add', '--add', 'add',
+    )
+
+    if sys.argv[1] in add_flags:
+        # load notes into database
+        add_notes = sys.argv[2:]
+
+        db.add_entries(add_notes)
+
+        # display confirmation message
+        db_notes = []
+        for note in add_notes:
+            db_notes += db.get_note_matches(note)
+
+        disp_notes = sorted(
+            db_notes,
+            key=lambda tup: tup[0],
+            reverse=True, # current addition(s) at top
+        )[:len(add_notes)] # grab same number as added
+
+        for nid, dt, msg in reversed(disp_notes):
+            console.print(
+                f'  [{cnorm}]{color_tags(msg)}[/]' +
+                f' [{csep}]|[/] ' +
+                f'[{cdim}]{nid}[/]' +
+                f' [{csep}]|[/] ' +
+                f'[{cnorm}](added)[/]'
+            )
+
         return
 
 
-    ## otherwise add notes ##
-    # load notes into database
-    add_notes = sys.argv[1:]
+    ## check for unknown option ##
+    console.print(f'  note: unknown option ([{cdim}]{sys.argv[1]}[/])')
 
-    db.add_entries(add_notes)
-
-    # display confirmation message
-    db_notes = []
-    for note in add_notes:
-        db_notes += db.get_note_matches(note)
-
-    disp_notes = sorted(
-        db_notes,
-        key=lambda tup: tup[0],
-        reverse=True, # current addition(s) at top
-    )[:len(add_notes)] # grab same number as added
-
-    for nid, dt, msg in reversed(disp_notes):
-        console.print(
-            f'  [{cnorm}]{color_tags(msg)}[/]' +
-            f' [{csep}]|[/] ' +
-            f'[{cdim}]{nid}[/]' +
-            f' [{csep}]|[/] ' +
-            f'[{cnorm}](added)[/]'
-        )
 
 
 
