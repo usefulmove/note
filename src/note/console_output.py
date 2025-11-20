@@ -13,6 +13,7 @@ CDIM = '#616161'
 CSEP = '#454545'
 CEMPH = '#faf6e4'
 CNORM = 'default'
+CWARN = '#f15f49'
 
 
 def color_tags(s: str) -> str:
@@ -44,4 +45,4 @@ def send_confirmation(note: db.Note, action: str) -> None:
 
 
 def send_option_unknown(arg: str) -> None:
-    console.print(f'  note: unknown option ([{CDIM}]{arg}[/])')
+    console.print(f'  [{CWARN}]error[/]: unknown option ([{CDIM}]{arg}[/])')
