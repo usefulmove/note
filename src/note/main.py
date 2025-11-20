@@ -10,7 +10,7 @@ def main():
     if len(sys.argv) == 1:
         # read database contents and write out to console
         # ( ignore :later: tagged notes )
-        current_notes = db.get_tag_unmatches('later')
+        current_notes: list[db.Note] = db.get_tag_unmatches('later')
 
         for note in current_notes:
             cons.send_note(note)
@@ -19,7 +19,7 @@ def main():
 
 
     ## version ##
-    version_flags = ('-version', '--version')
+    version_flags: tuple[str, ...] = ('-version', '--version')
 
     if sys.argv[1] in version_flags:
         cons.send_version(metadata.version("note"))
@@ -27,23 +27,21 @@ def main():
 
 
     ## list notes ##
-    list_flags = (
+    list_flags: tuple[str, ...] = (
         '-l', 'l', '-ls', 'ls',
         '-list', '--list', 'list',
     )
 
     if sys.argv[1] in list_flags:
         # read database contents and write out to console
-        notes = db.get_notes()
-
-        for note in notes:
+        for note in db.get_notes():
             cons.send_note(note)
 
         return
 
 
     ## clear (remove all) notes ##
-    clear_flags = (
+    clear_flags: tuple[str, ...] = (
         '-clear', '--clear',
         '-reset', '--reset',
         '-remove-all', '--remove-all',
@@ -55,7 +53,7 @@ def main():
 
 
     ## delete note(s) ##
-    delete_flags = (
+    delete_flags: tuple[str, ...] = (
         '-d', 'd', '-delete', '--delete', 'delete',
         '-rm', 'rm', '-remove', '--remove', 'remove',
         '-complete', '--complete', 'complete',
@@ -65,20 +63,20 @@ def main():
 
     if sys.argv[1] in delete_flags:
         # delete selected database entries
-        note_ids = sys.argv[2:]
+        note_ids: list[str] = sys.argv[2:]
 
-        notes = db.get_notes(note_ids)
+        conf_notes: list[db.Note] = db.get_notes(note_ids)
 
         db.delete_entries(note_ids)
 
-        for note in notes:
+        for note in conf_notes:
             cons.send_confirmation(note, "done")
 
         return
 
 
     ## search (general) ##
-    message_search_flags = (
+    message_search_flags: tuple[str, ...] = (
         '-s', 's', '-search', '--search', 'search',
         '-f', '-fd', 'fd', '-find', '--find', 'find',
         '-filter', '--filter', 'filter',
@@ -86,72 +84,66 @@ def main():
 
     if sys.argv[1] in message_search_flags:
         # search database and output results
-        match = sys.argv[2]
+        match: str = sys.argv[2]
 
-        search_matches = db.get_note_matches(match)
-
-        for note in search_matches:
+        for note in db.get_note_matches(match):
             cons.send_note(note)
 
         return
         
 
     ## tag search ##
-    tag_search_flags = ('-t', 't', '-tag', '--tag', 'tag')
+    tag_search_flags: tuple[str, ...] = ('-t', 't', '-tag', '--tag', 'tag')
 
     if sys.argv[1] in tag_search_flags:
         # search database for tags and output results
-        tag = sys.argv[2]
+        tag: str = sys.argv[2]
 
-        search_matches = db.get_tag_matches(tag)
-
-        for note in search_matches:
+        for note in db.get_tag_matches(tag):
             cons.send_note(note)
 
         return
 
 
     ## update note ##
-    update_flags = (
+    update_flags: tuple[str, ...] = (
         '-u', 'u', '-update', '--update', 'update',
         '-e', 'e', '-edit', '--edit', 'edit',
     )
 
     if sys.argv[1] in update_flags:
-        note_id = sys.argv[2]
-        message = sys.argv[3]
+        upd_note_id: str = sys.argv[2]
+        message: str = sys.argv[3]
 
-        db.update_entry(note_id, message)
+        db.update_entry(upd_note_id, message)
 
         # read note back from database and send confirmation
-        note = db.get_notes(note_id)[0]
-        cons.send_confirmation(note, "updated")
+        cons.send_confirmation(db.get_notes([upd_note_id])[0], "updated")
 
         return
 
 
     ## append note ##
-    append_flags = ('-append', '--append', 'append')
+    append_flags: tuple[str, ...] = ('-append', '--append', 'append')
 
     if sys.argv[1] in append_flags:
-        note_id = sys.argv[2]
-        s = sys.argv[3]
+        app_note_id: str = sys.argv[2]
+        s: str = sys.argv[3]
 
         # retrieve note
-        _, _, msg = db.get_notes(note_id)[0]
+        original_note: db.Note = db.get_notes([app_note_id])[0]
 
         # update note with appended message
-        db.update_entry(note_id, msg + ' ' + s)
+        db.update_entry(app_note_id, original_note.message + ' ' + s)
 
         # read note back from database and send confirmation
-        note = db.get_notes(note_id)[0]
-        cons.send_confirmation(note, "appended")
+        cons.send_confirmation(db.get_notes([app_note_id])[0], "appended")
 
         return
 
 
     ## rebase notes ##
-    rebase_flags = ('-rebase', '--rebase', 'rebase')
+    rebase_flags: tuple[str, ...] = ('-rebase', '--rebase', 'rebase')
 
     if sys.argv[1] in rebase_flags:
         # update database note ids
@@ -160,28 +152,28 @@ def main():
 
 
     ## add notes ##
-    add_flags = (
+    add_flags: tuple[str, ...] = (
         '-a', 'a',
         '-add', '--add', 'add',
     )
 
     if sys.argv[1] in add_flags:
         # load notes into database
-        add_notes = sys.argv[2:]
+        add_note_messages: list[str] = sys.argv[2:]
 
-        db.add_entries(add_notes)
+        db.add_entries(add_note_messages)
 
         # read notes back from database and send confirmation
 
-        db_notes = []
-        for note in add_notes:
-            db_notes += db.get_note_matches(note)
+        db_notes: list[db.Note] = []
+        for msg in add_note_messages:
+            db_notes += db.get_note_matches(msg)
 
-        disp_notes = sorted(
+        disp_notes: list[db.Note] = sorted(
             db_notes,
-            key=lambda tup: tup[0],
+            key=lambda note: note.id,
             reverse=True, # current addition(s) at top
-        )[:len(add_notes)] # grab same number as added
+        )[:len(add_note_messages)] # take same number as added
 
         for note in reversed(disp_notes):
             cons.send_confirmation(note, "added")

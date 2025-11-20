@@ -1,3 +1,4 @@
+from . import notedb as db
 from datetime import datetime
 from rich.console import Console
 import re
@@ -22,25 +23,21 @@ def send_version(version: str) -> None:
     console.print(f'  [{CNORM}]note[/] [{CEMPH}]{version}[/]')
 
 
-def send_note(note: tuple[int, datetime, str]) -> None:
-    nid, dt, msg = note
-
+def send_note(note: db.Note) -> None:
     console.print(
-        f'  [{CDIM}]{dt.strftime("%y.%m.%d %H:%M")}[/]' +
+        f'  [{CDIM}]{note.date.strftime("%y.%m.%d %H:%M")}[/]' +
         f' [{CSEP}]|[/] ' +
-        f'[{CDIM}]{nid}[/]' +
+        f'[{CDIM}]{note.id}[/]' +
         f' [{CSEP}]|[/] ' +
-        f'[{CNORM}]{color_tags(msg)}[/]'
+        f'[{CNORM}]{color_tags(note.message)}[/]'
     )
 
 
-def send_confirmation(note: tuple[int, datetime, str], action: str) -> None:
-    nid, dt, msg = note
-
+def send_confirmation(note: db.Note, action: str) -> None:
     console.print(
-        f'  [{CNORM}]{color_tags(msg)}[/]' +
+        f'  [{CNORM}]{color_tags(note.message)}[/]' +
         f' [{CSEP}]|[/] ' +
-        f'[{CDIM}]{nid}[/]' +
+        f'[{CDIM}]{note.id}[/]' +
         f' [{CSEP}]|[/] ' +
         f'[{CNORM}]({action})[/]'
     )

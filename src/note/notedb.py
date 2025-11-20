@@ -1,6 +1,13 @@
 from datetime import datetime
 import duckdb
 import re
+from typing import NamedTuple
+
+
+class Note(NamedTuple):
+    id: int
+    date: datetime
+    message: str
 
 
 ## notes database ##
@@ -37,7 +44,7 @@ def get_connection() -> duckdb.DuckDBPyConnection:
     return con
 
 
-def get_notes(nids: list[str] = []) -> list[tuple[int, datetime, str]]:
+def get_notes(nids: list[str] = []) -> list[Note]:
     if not nids:
         # retrieve all notes
         query = f"""
@@ -68,7 +75,10 @@ def get_notes(nids: list[str] = []) -> list[tuple[int, datetime, str]]:
     with get_connection() as con:
         entries = con.execute(query).fetchall()
 
-    return entries
+    # covert each tuple into a Note object
+    notes: list[Note] = [Note(*row) for row in entries]
+
+    return notes
 
 
 def delete_entries(nids: list[str]) -> None:
@@ -88,7 +98,7 @@ def clear_database() -> None:
         con.execute(f'delete from {TABLE};')
 
 
-def get_note_matches(match: str) -> list[tuple[int, datetime, str]]:
+def get_note_matches(match: str) -> list[Note]:
     query = f"""
         select
             {NID_COLUMN},
@@ -105,10 +115,13 @@ def get_note_matches(match: str) -> list[tuple[int, datetime, str]]:
     with get_connection() as con:
         matches = con.execute(query).fetchall()
 
-    return matches
+    # covert each tuple into a Note object
+    notes: list[Note] = [Note(*row) for row in matches]
+
+    return notes
 
 
-def get_note_unmatches(unmatch: str) -> list[tuple[int, datetime, str]]:
+def get_note_unmatches(unmatch: str) -> list[Note]:
     query = f"""
         select
             {NID_COLUMN},
@@ -125,10 +138,13 @@ def get_note_unmatches(unmatch: str) -> list[tuple[int, datetime, str]]:
     with get_connection() as con:
         unmatches = con.execute(query).fetchall()
 
-    return unmatches
+    # covert each tuple into a Note object
+    notes: list[Note] = [Note(*row) for row in unmatches]
+
+    return notes
 
 
-def get_tag_matches(tag: str) -> list[tuple[int, datetime, str]]:
+def get_tag_matches(tag: str) -> list[Note]:
     query = f"""
         select
             {NID_COLUMN},
@@ -145,10 +161,13 @@ def get_tag_matches(tag: str) -> list[tuple[int, datetime, str]]:
     with get_connection() as con:
         matches = con.execute(query).fetchall()
 
-    return matches
+    # covert each tuple into a Note object
+    notes: list[Note] = [Note(*row) for row in matches]
+
+    return notes
 
 
-def get_tag_unmatches(tag: str) -> list[tuple[int, datetime, str]]:
+def get_tag_unmatches(tag: str) -> list[Note]:
     query = f"""
         select
             {NID_COLUMN},
@@ -165,7 +184,10 @@ def get_tag_unmatches(tag: str) -> list[tuple[int, datetime, str]]:
     with get_connection() as con:
         unmatches = con.execute(query).fetchall()
 
-    return unmatches
+    # covert each tuple into a Note object
+    notes: list[Note] = [Note(*row) for row in unmatches]
+
+    return notes
 
 
 def update_entry(nid: str, message: str) -> None:
@@ -211,14 +233,14 @@ def rebase() -> None:
 
 def add_entries(entries: list[str]) -> None:
     with get_connection() as con:
-        for msg in entries:
+        for message in entries:
             query = f"""
                 insert into {SCHEMA}.{TABLE}
                     ({NID_COLUMN}, {TIMESTAMP_COLUMN}, {MESSAGE_COLUMN})
                 values (
                     (select max({NID_COLUMN}) from {TABLE}) + 1,
                     cast('{datetime.now()}' as timestamp),
-                    '{msg}'
+                    '{message}'
                 );
             """
             con.execute(query)
