@@ -1,6 +1,6 @@
 # **. simple note capture .**
 
-`note` is a command-line application designed to help you capture, organize, and manage your notes without leaving the terminal. It combines `typer` for a smooth CLI experience, `duckdb` for robust local storage, and `rich` for beautiful, readable output.
+`note` is a command-line application designed to help you capture, organize, and manage your notes without leaving the terminal. It combines `duckdb` for robust local storage and `rich` for beautiful, readable output.
 
 ---
 
@@ -96,7 +96,6 @@ note clear
 
 ## Technologies
 
-  * **[Typer](https://typer.tiangolo.com/)**: CLI interface construction.
   * **[DuckDB](https://duckdb.org/)**: Local SQL OLAP database.
   * **[Rich](https://rich.readthedocs.io/en/stable/)**: Terminal formatting.
   * **[uv](https://github.com/astral-sh/uv)**: Python package and project manager.
