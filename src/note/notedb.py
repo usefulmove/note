@@ -2,6 +2,10 @@ from datetime import datetime
 import duckdb
 import re
 from typing import NamedTuple
+from . import console_output as cons
+
+
+PRODUCTION = True
 
 
 class Note(NamedTuple):
@@ -11,8 +15,12 @@ class Note(NamedTuple):
 
 
 ## notes database ##
-DB_FILENAME = '.notes.db'
-DB_PATH = '~/'
+if PRODUCTION:
+    DB_FILENAME = '.notes.db'
+    DB_PATH = '~/'
+else:
+    DB_FILENAME = 'notes.db'
+    DB_PATH = './test/'
 
 
 ## database schema ##
@@ -58,6 +66,14 @@ def get_notes(nids: list[str] = []) -> list[Note]:
                 1, 2;
         """
     else:
+        query_insert: str = ', '.join('?' for _ in nids)
+
+        try:
+            ids: list[int] = list(map(int, nids))
+        except ValueError:
+            cons.send_error('improper input. could not convert note identifier.')
+            return []
+
         # retrieve selected nids
         query = f"""
             select
@@ -67,13 +83,16 @@ def get_notes(nids: list[str] = []) -> list[Note]:
             from
                 {TABLE}
             where
-                {NID_COLUMN} in ({re.sub(r'[\[\]]', '', str(nids))})
+                {NID_COLUMN} in ({query_insert})
             order by
                 1, 2;
         """
 
     with get_connection() as con:
-        entries = con.execute(query).fetchall()
+        if not nids:
+            entries = con.execute(query).fetchall()
+        else:
+            entries = con.execute(query, ids).fetchall()
 
     # covert each tuple into a Note object
     notes: list[Note] = [Note(*row) for row in entries]
@@ -87,9 +106,9 @@ def delete_entries(nids: list[str]) -> None:
         for nid in nids:
             query = f"""
                 delete from {TABLE}
-                where {NID_COLUMN} = {nid};
+                where {NID_COLUMN} = ?;
             """
-            con.execute(query)
+            con.execute(query, [int(nid)])
 
 
 def clear_database() -> None:
@@ -107,13 +126,13 @@ def get_note_matches(match: str) -> list[Note]:
         from
             {TABLE}
         where
-            {MESSAGE_COLUMN} ilike '%{match}%'
+            {MESSAGE_COLUMN} ilike ?
         order by
             1, 2;
     """
 
     with get_connection() as con:
-        matches = con.execute(query).fetchall()
+        matches = con.execute(query, ['%' + match + '%']).fetchall()
 
     # covert each tuple into a Note object
     notes: list[Note] = [Note(*row) for row in matches]
@@ -130,13 +149,13 @@ def get_note_unmatches(unmatch: str) -> list[Note]:
         from
             {TABLE}
         where
-            {MESSAGE_COLUMN} not ilike '%{unmatch}%'
+            {MESSAGE_COLUMN} not ilike ?
         order by
             1, 2;
     """
 
     with get_connection() as con:
-        unmatches = con.execute(query).fetchall()
+        unmatches = con.execute(query, ['%' + unmatch + '%']).fetchall()
 
     # covert each tuple into a Note object
     notes: list[Note] = [Note(*row) for row in unmatches]
@@ -153,13 +172,13 @@ def get_tag_matches(tag: str) -> list[Note]:
         from
             {TABLE}
         where
-            {MESSAGE_COLUMN} ilike '%:{tag}:%'
+            {MESSAGE_COLUMN} ilike ?
         order by
             1, 2;
     """
 
     with get_connection() as con:
-        matches = con.execute(query).fetchall()
+        matches = con.execute(query, ['%:' + tag + ':%']).fetchall()
 
     # covert each tuple into a Note object
     notes: list[Note] = [Note(*row) for row in matches]
@@ -176,13 +195,13 @@ def get_tag_unmatches(tag: str) -> list[Note]:
         from
             {TABLE}
         where
-            {MESSAGE_COLUMN} not ilike '%:{tag}:%'
+            {MESSAGE_COLUMN} not ilike ?
         order by
             1, 2;
     """
 
     with get_connection() as con:
-        unmatches = con.execute(query).fetchall()
+        unmatches = con.execute(query, ['%:' + tag + ':%']).fetchall()
 
     # covert each tuple into a Note object
     notes: list[Note] = [Note(*row) for row in unmatches]
@@ -195,13 +214,13 @@ def update_entry(nid: str, message: str) -> None:
         update
             {TABLE}
         set
-            {MESSAGE_COLUMN} = '{message}'
+            {MESSAGE_COLUMN} = ?
         where
-            {NID_COLUMN} = {nid};
+            {NID_COLUMN} = ?;
     """
 
     with get_connection() as con:
-        con.execute(query)
+        con.execute(query, [message, int(nid)])
 
 
 def rebase() -> None:
@@ -240,7 +259,7 @@ def add_entries(entries: list[str]) -> None:
                 values (
                     (select max({NID_COLUMN}) from {TABLE}) + 1,
                     cast('{datetime.now()}' as timestamp),
-                    '{message}'
+                    ?
                 );
             """
-            con.execute(query)
+            con.execute(query, [message])

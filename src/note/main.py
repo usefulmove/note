@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 import sys
 from importlib import metadata
-from . import notedb as db
 from . import console_output as cons
+from . import notedb as db
 
 
 def main():
+    if not db.PRODUCTION:
+        print('  [warning: note running in TEST mode]')
+
+
     ## no args - list notes ##
     if len(sys.argv) == 1:
         # read database contents and write out to console
