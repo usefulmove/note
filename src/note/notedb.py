@@ -2,6 +2,22 @@ from datetime import datetime
 import duckdb
 from typing import NamedTuple
 
+__all__ = [
+    'PRODUCTION',
+    'Note',
+    'create_notes',
+    'is_valid',
+    'get_notes',
+    'get_note_matches',
+    'get_note_unmatches',
+    'get_tag_matches',
+    'get_tag_unmatches',
+    'update_note',
+    'rebase',
+    'delete_notes',
+    'clear_database',
+]
+
 
 PRODUCTION = True
 
@@ -299,4 +315,6 @@ def rebase() -> None:
 
 
 def is_valid(id: int) -> bool:
+    '''Return whether argument is a valid note identifier.'''
+
     return id in get_nids()

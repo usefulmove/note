@@ -2,6 +2,13 @@ from . import notedb as db
 from rich.console import Console
 import re
 
+__all__ = [
+    'send_version',
+    'send_note',
+    'send_confirmation',
+    'send_error',
+]
+
 
 ## rich console settings ##
 console = Console()
@@ -13,12 +20,6 @@ CSEP = '#454545'
 CEMPH = '#faf6e4'
 CNORM = 'default'
 CERR = '#ff0000'
-
-
-def color_tags(s: str) -> str:
-    '''Apply dimming to tags in input string.'''
-
-    return re.sub(r":([a-zA-Z0-9]*):", f"[{CDIM}]:\\1:[/{CDIM}]", s)
 
 
 def send_version(version: str) -> None:
@@ -58,3 +59,9 @@ def send_error(error_message: str, arg: str = '') -> None:
         console.print(f'  [{CERR}]error[/]: {error_message}')
     else:
         console.print(f'  [{CERR}]error[/]: {error_message} ([{CDIM}]{arg}[/])')
+
+
+def color_tags(s: str) -> str:
+    '''Apply dimming to tags in input string.'''
+
+    return re.sub(r":([a-zA-Z0-9]*):", f"[{CDIM}]:\\1:[/{CDIM}]", s)
