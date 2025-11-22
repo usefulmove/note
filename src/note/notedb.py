@@ -102,12 +102,12 @@ def get_notes(ids: list[int] = []) -> list[Note]:
 
     with get_connection() as con:
         if not ids:
-            entries = con.execute(query).fetchall()
+            rows = con.execute(query).fetchall()
         else:
-            entries = con.execute(query, ids).fetchall()
+            rows = con.execute(query, ids).fetchall()
 
     # covert each tuple into a Note object
-    notes: list[Note] = [Note(*row) for row in entries]
+    notes: list[Note] = [Note(*row) for row in rows]
 
     return notes
 
@@ -125,10 +125,10 @@ def get_nids() -> list[int]:
     """
 
     with get_connection() as con:
-        entries = con.execute(query).fetchall()
+        rows = con.execute(query).fetchall()
 
     # covert
-    ids: list[int] = [int(tup[0]) for tup in entries]
+    ids: list[int] = [int(row[0]) for row in rows]
 
     return ids
 
