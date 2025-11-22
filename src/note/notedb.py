@@ -34,6 +34,8 @@ MESSAGE_COLUMN = 'message'
 ## module functions ##
 
 def get_connection() -> duckdb.DuckDBPyConnection:
+    '''Return the note database connection.'''
+
     # connect to database (or create if it doesn't exist)
     con = duckdb.connect(DB_PATH + DB_FILENAME)
 
@@ -52,6 +54,8 @@ def get_connection() -> duckdb.DuckDBPyConnection:
 
 
 def get_notes(ids: list[int] = []) -> list[Note]:
+    '''Return identified notes. Return all if none identified.'''
+
     if not ids:
         # retrieve all notes
         query = f"""
@@ -94,7 +98,8 @@ def get_notes(ids: list[int] = []) -> list[Note]:
 
 
 def get_nids() -> list[int]:
-    # retrieve all nids
+    '''Return all note identifiers.'''
+
     query = f"""
         select
             {NID_COLUMN}
@@ -114,7 +119,8 @@ def get_nids() -> list[int]:
 
 
 def delete_notes(ids: list[int]) -> None:
-    # delete selected database entries
+    '''Delete identified notes.'''
+
     with get_connection() as con:
         for id in ids:
             query = f"""
@@ -125,12 +131,15 @@ def delete_notes(ids: list[int]) -> None:
 
 
 def clear_database() -> None:
-    # clear database
+    '''Delete all notes from note database.'''
+
     with get_connection() as con:
         con.execute(f'delete from {TABLE};')
 
 
 def get_note_matches(match: str) -> list[Note]:
+    '''Return all notes that have text matching input.'''
+
     query = f"""
         select
             {NID_COLUMN},
@@ -154,6 +163,8 @@ def get_note_matches(match: str) -> list[Note]:
 
 
 def get_note_unmatches(unmatch: str) -> list[Note]:
+    '''Return all notes that do not have text matching input.'''
+
     query = f"""
         select
             {NID_COLUMN},
@@ -177,6 +188,8 @@ def get_note_unmatches(unmatch: str) -> list[Note]:
 
 
 def get_tag_matches(tag: str) -> list[Note]:
+    '''Return all notes that have tags matching input.'''
+
     query = f"""
         select
             {NID_COLUMN},
@@ -200,6 +213,8 @@ def get_tag_matches(tag: str) -> list[Note]:
 
 
 def get_tag_unmatches(tag: str) -> list[Note]:
+    '''Return all notes that do not have tags matching input.'''
+
     query = f"""
         select
             {NID_COLUMN},
@@ -223,6 +238,8 @@ def get_tag_unmatches(tag: str) -> list[Note]:
 
 
 def update_note(id: int, message: str) -> None:
+    '''Replace note text of identified note with provided input.'''
+
     query = f"""
         update
             {TABLE}
@@ -236,7 +253,26 @@ def update_note(id: int, message: str) -> None:
         con.execute(query, [message, id])
 
 
+def create_notes(entries: list[str]) -> None:
+    '''Add notes to database using note text inputs (list[str]).'''
+
+    with get_connection() as con:
+        for message in entries:
+            query = f"""
+                insert into {SCHEMA}.{TABLE}
+                    ({NID_COLUMN}, {TIMESTAMP_COLUMN}, {MESSAGE_COLUMN})
+                values (
+                    (select coalesce(max({NID_COLUMN}), 0) + 1 from {TABLE}),
+                    cast('{datetime.now()}' as timestamp),
+                    ?
+                );
+            """
+            con.execute(query, [message])
+
+
 def rebase() -> None:
+    '''Rebase note identifiers starting at 1.'''
+
     query = f"""
         with n{NID_COLUMN} as (
                 select
@@ -261,21 +297,6 @@ def rebase() -> None:
 
     with get_connection() as con:
         con.execute(query)
-
-
-def add_entries(entries: list[str]) -> None:
-    with get_connection() as con:
-        for message in entries:
-            query = f"""
-                insert into {SCHEMA}.{TABLE}
-                    ({NID_COLUMN}, {TIMESTAMP_COLUMN}, {MESSAGE_COLUMN})
-                values (
-                    (select coalesce(max({NID_COLUMN}), 0) + 1 from {TABLE}),
-                    cast('{datetime.now()}' as timestamp),
-                    ?
-                );
-            """
-            con.execute(query, [message])
 
 
 def is_valid(id: int) -> bool:

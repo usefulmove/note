@@ -203,7 +203,7 @@ def main() -> None:
         # load notes into database
         add_note_messages: list[str] = sys.argv[2:]
 
-        db.add_entries(add_note_messages)
+        db.create_notes(add_note_messages)
 
         # read notes back from database and send confirmation
 

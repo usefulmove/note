@@ -17,14 +17,20 @@ CERR = '#f15f49'
 
 
 def color_tags(s: str) -> str:
+    '''Apply dimming to tags in input string.'''
+
     return re.sub(r":([a-zA-Z0-9]*):", f"[{CDIM}]:\\1:[/{CDIM}]", s)
 
 
 def send_version(version: str) -> None:
+    '''Output version message using input version string.'''
+
     console.print(f'  [{CNORM}]note[/] [{CEMPH}]{version}[/]')
 
 
 def send_note(note: db.Note) -> None:
+    '''Output formatted note.'''
+
     console.print(
         f'  [{CDIM}]{note.date.strftime("%y.%m.%d %H:%M")}[/]' +
         f' [{CSEP}]|[/] ' +
@@ -35,6 +41,8 @@ def send_note(note: db.Note) -> None:
 
 
 def send_confirmation(note: db.Note, action: str) -> None:
+    '''Output formatted note confirmation.'''
+
     console.print(
         f'  [{CNORM}]{color_tags(note.message)}[/]' +
         f' [{CSEP}]|[/] ' +
@@ -45,8 +53,9 @@ def send_confirmation(note: db.Note, action: str) -> None:
 
 
 def send_error(error_message: str, arg: str = '') -> None:
+    '''Output formatted error message.'''
+
     if arg == '':
         console.print(f'  [{CERR}]error[/]: {error_message}')
     else:
         console.print(f'  [{CERR}]error[/]: {error_message} ([{CDIM}]{arg}[/])')
-

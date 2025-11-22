@@ -33,4 +33,4 @@
 
 
 # allow `notedb.send_error()` to take an optional argument
-- then remove second send error message function
+- remove second send error message function
