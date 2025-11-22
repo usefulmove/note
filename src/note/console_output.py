@@ -12,7 +12,7 @@ CDIM = '#616161'
 CSEP = '#454545'
 CEMPH = '#faf6e4'
 CNORM = 'default'
-CERR = '#f15f49'
+CERR = '#ff0000'
 
 
 def color_tags(s: str) -> str:
