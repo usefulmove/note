@@ -1,5 +1,4 @@
 from . import notedb as db
-from datetime import datetime
 from rich.console import Console
 import re
 

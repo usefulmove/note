@@ -7,13 +7,13 @@ from . import notedb as db
 
 def main() -> None:
     if not db.PRODUCTION:
-        print('  [warning: note running in TEST mode]')
+        print('  [warning: running in TEST mode]')
 
 
     ## no args - list notes ##
     if len(sys.argv) == 1:
-        # read database contents and write out to console
-        # ( ignore :later: tagged notes )
+        # read database and send notes to console
+        # ignore notes tagged :later:
         current_notes: list[db.Note] = db.get_tag_unmatches('later')
 
         for note in current_notes:
@@ -68,9 +68,15 @@ def main() -> None:
 
     if sys.argv[1] in delete_flags:
         # delete selected database entries
+
+        # check for args
+        if len(sys.argv) < 3:
+            cons.send_error('no delete argument', 'nid')
+            return
+
+        # check nid args
         note_ids: list[str] = sys.argv[2:]
 
-        # valid note id?
         try:
             ids = [int(nid.strip()) for nid in note_ids]
         except ValueError:
@@ -103,6 +109,12 @@ def main() -> None:
 
     if sys.argv[1] in message_search_flags:
         # search database and output results
+
+        # check for args
+        if len(sys.argv) < 3:
+            cons.send_error('no search argument')
+            return
+
         match: str = sys.argv[2]
 
         for note in db.get_note_matches(match):
@@ -116,6 +128,12 @@ def main() -> None:
 
     if sys.argv[1] in tag_search_flags:
         # search database for tags and output results
+
+        # check for args
+        if len(sys.argv) < 3:
+            cons.send_error('no search argument', 'tag')
+            return
+
         tag: str = sys.argv[2]
 
         for note in db.get_tag_matches(tag):
@@ -131,8 +149,14 @@ def main() -> None:
     )
 
     if sys.argv[1] in update_flags:
+        # update identified note
+
+        # check for args
+        if len(sys.argv) < 4:
+            cons.send_error('not enough update arguments', 'nid message')
+            return
+
         upd_note_id: str = sys.argv[2]
-        message: str = sys.argv[3]
 
         # valid note id?
         try:
@@ -144,6 +168,8 @@ def main() -> None:
         if not db.is_valid(id):
             cons.send_error('not a valid note', str(id))
             return
+
+        message: str = sys.argv[3]
 
         # update note
         db.update_note(id, message)
@@ -158,8 +184,14 @@ def main() -> None:
     append_flags: tuple[str, ...] = ('-append', '--append', 'append')
 
     if sys.argv[1] in append_flags:
+        # append to identified note
+
+        # check for args
+        if len(sys.argv) < 4:
+            cons.send_error('not enough append arguments', 'nid extension')
+            return
+
         app_note_id: str = sys.argv[2]
-        s: str = sys.argv[3]
 
         # valid note id?
         try:
@@ -171,6 +203,8 @@ def main() -> None:
         if not db.is_valid(id):
             cons.send_error('not a valid note', str(id))
             return
+
+        s: str = sys.argv[3]
 
         # retrieve note
         original_note: db.Note = db.get_notes([id])[0]
@@ -223,8 +257,8 @@ def main() -> None:
         return
 
 
-    ## check for unknown option ##
-    cons.send_error('unknown option', sys.argv[1])
+    ## unknown command ##
+    cons.send_error('unknown command', sys.argv[1])
 
 
 

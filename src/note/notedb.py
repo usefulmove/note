@@ -1,6 +1,5 @@
 from datetime import datetime
 import duckdb
-import re
 from typing import NamedTuple
 
 
