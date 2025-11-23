@@ -12,7 +12,7 @@ def main() -> None:
 
     ## no args - run short list cmd ##
     if len(sys.argv) == 1:
-        cmd.commands['_'].run()
+        cmd.commands.get('_').run()
         return
 
 
@@ -20,7 +20,7 @@ def main() -> None:
     cmd_id: str = sys.argv[1]
 
     if cmd_id in cmd.commands:
-        cmd.commands[cmd_id].run()
+        cmd.commands.get(cmd_id).run()
         return
 
 
