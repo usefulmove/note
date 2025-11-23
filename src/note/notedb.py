@@ -1,3 +1,4 @@
+import os.path
 from datetime import datetime
 import duckdb
 from typing import NamedTuple
@@ -52,7 +53,7 @@ def get_connection() -> duckdb.DuckDBPyConnection:
     '''Return the note database connection.'''
 
     # connect to database (or create if it doesn't exist)
-    con = duckdb.connect(DB_PATH + DB_FILENAME)
+    con = duckdb.connect(os.path.expanduser(DB_PATH + DB_FILENAME))
 
     # create schema and notes table
     con.execute(f'create schema if not exists {SCHEMA};')

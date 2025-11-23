@@ -356,8 +356,4 @@ command_list = [
 
 ## build command dictionary ####################################################
 
-commands: dict[str, Command] = dict()
-
-for cmd in command_list:
-    for id in cmd.ids:
-        commands.update({id: cmd})
+commands = {id: cmd for cmd in command_list for id in cmd.ids}
