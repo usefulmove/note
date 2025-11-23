@@ -12,6 +12,7 @@
 - Add argument validation per command (len checks, required ids/messages) and surface failures via `cons.send_error` instead of tracebacks.
 >   :0.3.4:
 - Consider a thin argparse layer to centralize help/usage.
+>   (rejected)
 - Guard note lookups: if `get_notes([...])` returns empty, emit “id not found” and skip updates/appends/deletes.
 >   :0.3.4:
 - Normalize DB path creation with `pathlib.Path`/`os.path.expanduser` and make the target path configurable via env or CLI flag rather than the hard-coded `PRODUCTION` boolean.
