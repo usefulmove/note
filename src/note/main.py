@@ -15,7 +15,7 @@ def main() -> None:
         return
 
     ## run command ##
-    cmd_id = sys.argv[1]
+    cmd_id: str = sys.argv[1]
 
     if cmd_id in cmd.commands:
         cmd.commands[cmd_id].run()

@@ -2,6 +2,7 @@ import sys
 from importlib import metadata
 from . import notedb as db
 from . import console_output as cons
+from collections.abc import Callable
 
 
 __all__ = [
@@ -11,10 +12,10 @@ __all__ = [
 
 
 class Command:
-    def __init__(self, ids, check_func, execute_func):
-        self.ids = ids
-        self.check = check_func
-        self.execute = execute_func
+    def __init__(self, ids, check_func, execute_func) -> None:
+        self.ids: list[str] = ids
+        self.check: Callable[[None], None] = check_func
+        self.execute: Callable[[None], None] = execute_func
 
     def run(self):
         if self.check():
@@ -23,14 +24,14 @@ class Command:
 
 ## add notes command ###########################################################
 
-def add_cmd_check():
+def add_cmd_check() -> bool:
     if len(sys.argv) < 3:
         cons.send_error('no add argument')
         return False
 
     return True
 
-def add_cmd_execute():
+def add_cmd_execute() -> None:
     add_note_messages: list[str] = sys.argv[2:]
 
     db.create_notes(add_note_messages)
@@ -62,7 +63,7 @@ add_cmd = Command(
 
 ## list all notes command ##########################################################
 
-def list_cmd_execute():
+def list_cmd_execute() -> None:
     # read database contents and write out to console
     for note in db.get_notes():
         cons.send_note(note)
@@ -79,7 +80,7 @@ list_cmd = Command(
 
 ## short list command ##########################################################
 
-def short_list_cmd_execute():
+def short_list_cmd_execute() -> None:
     # read database and send notes to console
     # ignore notes tagged :later:
     current_notes: list[db.Note] = db.get_tag_unmatches('later')
@@ -96,14 +97,14 @@ short_list_cmd = Command(
 
 ## search (general) command ####################################################
 
-def search_cmd_check():
+def search_cmd_check() -> bool:
     if len(sys.argv) < 3:
         cons.send_error('no search argument')
         return False
 
     return True
 
-def search_cmd_execute():
+def search_cmd_execute() -> None:
     match: str = sys.argv[2]
 
     for note in db.get_note_matches(match):
@@ -122,14 +123,14 @@ search_cmd = Command(
 
 ## tag search command ##########################################################
 
-def tag_cmd_check():
+def tag_cmd_check() -> bool:
     if len(sys.argv) < 3:
         cons.send_error('no search argument', 'tag')
         return False
 
     return True
 
-def tag_cmd_execute():
+def tag_cmd_execute() -> None:
     tag: str = sys.argv[2]
 
     for note in db.get_tag_matches(tag):
@@ -144,7 +145,7 @@ tag_cmd = Command(
 
 ## update command ##############################################################
 
-def update_cmd_check():
+def update_cmd_check() -> bool:
     if len(sys.argv) < 4:
         cons.send_error('not enough update arguments', 'nid message')
         return False
@@ -153,7 +154,7 @@ def update_cmd_check():
 
     # valid note id?
     try:
-        id = int(upd_note_id.strip())
+        id: int = int(upd_note_id.strip())
     except ValueError:
         cons.send_error('invalid input', upd_note_id)
         return False
@@ -164,11 +165,11 @@ def update_cmd_check():
 
     return True
 
-def update_cmd_execute():
+def update_cmd_execute() -> None:
     upd_note_id: str = sys.argv[2]
     message: str = sys.argv[3]
 
-    id = int(upd_note_id.strip())
+    id: int = int(upd_note_id.strip())
 
     # update note
     db.update_note(id, message)
@@ -188,7 +189,7 @@ update_cmd = Command(
 
 ## append command ##############################################################
 
-def append_cmd_check():
+def append_cmd_check() -> bool:
     if len(sys.argv) < 4:
         cons.send_error('not enough append arguments', 'nid extension')
         return False
@@ -197,7 +198,7 @@ def append_cmd_check():
 
     # valid note id?
     try:
-        id = int(app_note_id.strip())
+        id: int = int(app_note_id.strip())
     except ValueError:
         cons.send_error('invalid input', app_note_id)
         return False
@@ -208,11 +209,11 @@ def append_cmd_check():
 
     return True
 
-def append_cmd_execute():
+def append_cmd_execute() -> None:
     app_note_id: str = sys.argv[2]
     s: str = sys.argv[3]
 
-    id = int(app_note_id.strip())
+    id: int = int(app_note_id.strip())
 
     # retrieve note
     original_note: db.Note = db.get_notes([id])[0]
@@ -233,7 +234,7 @@ append_cmd = Command(
 ## delete command ##############################################################
 # delete selected database entries
 
-def delete_cmd_check():
+def delete_cmd_check() -> bool:
     if len(sys.argv) < 3:
         cons.send_error('no delete argument', 'nid')
         return False
@@ -242,7 +243,7 @@ def delete_cmd_check():
     note_ids: list[str] = sys.argv[2:]
 
     try:
-        ids = [int(nid.strip()) for nid in note_ids]
+        ids: list[int] = [int(nid.strip()) for nid in note_ids]
     except ValueError:
         cons.send_error('invalid input')
         return False
@@ -254,9 +255,9 @@ def delete_cmd_check():
 
     return True
 
-def delete_cmd_execute():
+def delete_cmd_execute() -> None:
     note_ids: list[str] = sys.argv[2:]
-    ids = [int(nid.strip()) for nid in note_ids]
+    ids: list[int] = [int(nid.strip()) for nid in note_ids]
 
     # retrieve notes (for confirmation)
     conf_notes: list[db.Note] = db.get_notes(ids)
@@ -282,7 +283,7 @@ delete_cmd = Command(
 
 ## clear command ###############################################################
 
-def clear_cmd_execute():
+def clear_cmd_execute() -> None:
     db.clear_database()
 
 clear_cmd = Command(
@@ -298,7 +299,7 @@ clear_cmd = Command(
 
 ## rebase command ##############################################################
 
-def rebase_cmd_execute():
+def rebase_cmd_execute() -> None:
     # update database note ids
     db.rebase()
 
@@ -311,7 +312,7 @@ rebase_cmd = Command(
 
 ## version command #############################################################
 
-def version_cmd_execute():
+def version_cmd_execute() -> None:
     cons.send_version(metadata.version("note"))
 
 version_cmd = Command(
@@ -323,10 +324,10 @@ version_cmd = Command(
 
 ## ? command ##########################################################
 
-#def _cmd_check():
+#def _cmd_check() -> bool:
 #    return True
 #
-#def _cmd_execute():
+#def _cmd_execute() -> None:
 #    pass
 #
 #_cmd = Command(
@@ -355,8 +356,8 @@ command_list = [
 
 ## build command dictionary ####################################################
 
-commands = {}
+commands: dict[str, Command] = dict()
 
-for c in command_list:
-    for id in c.ids:
-        commands.update({id: c})
+for cmd in command_list:
+    for id in cmd.ids:
+        commands.update({id: cmd})
