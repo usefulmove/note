@@ -39,6 +39,7 @@ def add_cmd_execute() -> None:
     # read notes back from database and send confirmation
 
     db_notes: list[db.Note] = []
+
     for msg in add_note_messages:
         db_notes += db.get_note_matches(msg)
 

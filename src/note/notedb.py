@@ -72,42 +72,43 @@ def get_connection() -> duckdb.DuckDBPyConnection:
 def get_notes(ids: list[int] | None = None) -> list[Note]:
     '''Return identified notes. Return all if none identified.'''
 
-    if not ids:
-        # retrieve all notes
-        query = f"""
-            select
-                {NID_COLUMN},
-                {TIMESTAMP_COLUMN},
-                {MESSAGE_COLUMN}
-            from
-                {TABLE}
-            order by
-                1, 2;
-        """
-    else:
-        query_insert: str = ', '.join('?' for _ in ids)
-
-        # retrieve selected nids
-        query = f"""
-            select
-                {NID_COLUMN},
-                {TIMESTAMP_COLUMN},
-                {MESSAGE_COLUMN}
-            from
-                {TABLE}
-            where
-                {NID_COLUMN} in ({query_insert})
-            order by
-                1, 2;
-        """
+    rows: list[tuple[int, datetime, str]]
 
     with get_connection() as con:
         if not ids:
+            # retrieve all notes
+            query = f"""
+                select
+                    {NID_COLUMN},
+                    {TIMESTAMP_COLUMN},
+                    {MESSAGE_COLUMN}
+                from
+                    {TABLE}
+                order by
+                    1, 2;
+            """
+
             rows = con.execute(query).fetchall()
         else:
+            query_insert: str = ', '.join('?' for _ in ids)
+
+            # retrieve selected nids
+            query = f"""
+                select
+                    {NID_COLUMN},
+                    {TIMESTAMP_COLUMN},
+                    {MESSAGE_COLUMN}
+                from
+                    {TABLE}
+                where
+                    {NID_COLUMN} in ({query_insert})
+                order by
+                    1, 2;
+            """
+
             rows = con.execute(query, ids).fetchall()
 
-    # covert each tuple into a Note object
+    # covert each tuple into a Note
     notes: list[Note] = [Note(*row) for row in rows]
 
     return notes
@@ -151,7 +152,7 @@ def get_note_matches(match: str) -> list[Note]:
     with get_connection() as con:
         matches = con.execute(query, ['%' + match + '%']).fetchall()
 
-    # covert each tuple into a Note object
+    # covert each tuple into a Note
     notes: list[Note] = [Note(*row) for row in matches]
 
     return notes
@@ -176,7 +177,7 @@ def get_note_unmatches(unmatch: str) -> list[Note]:
     with get_connection() as con:
         unmatches = con.execute(query, ['%' + unmatch + '%']).fetchall()
 
-    # covert each tuple into a Note object
+    # covert each tuple into a Note
     notes: list[Note] = [Note(*row) for row in unmatches]
 
     return notes
@@ -201,7 +202,7 @@ def get_tag_matches(tag: str) -> list[Note]:
     with get_connection() as con:
         matches = con.execute(query, ['%:' + tag + ':%']).fetchall()
 
-    # covert each tuple into a Note object
+    # covert each tuple into a Note
     notes: list[Note] = [Note(*row) for row in matches]
 
     return notes
@@ -226,7 +227,7 @@ def get_tag_unmatches(tag: str) -> list[Note]:
     with get_connection() as con:
         unmatches = con.execute(query, ['%:' + tag + ':%']).fetchall()
 
-    # covert each tuple into a Note object
+    # covert each tuple into a Note
     notes: list[Note] = [Note(*row) for row in unmatches]
 
     return notes
@@ -307,6 +308,6 @@ def is_valid(id: int) -> bool:
     """
 
     with get_connection() as con:
-        count, *_ = con.execute(query, [id]).fetchone()
+        count, *_ = con.execute(query, [id]).fetchall()[0]
 
     return count > 0
