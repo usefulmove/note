@@ -84,15 +84,33 @@ list_cmd = Command(
 def short_list_cmd_execute() -> None:
     # read database and send notes to console
     # ignore notes tagged :later:
-    current_notes: list[db.Note] = db.get_tag_unmatches('later')
+    notes: list[db.Note] = db.get_tag_unmatches('que')
 
-    for note in current_notes:
+    for note in notes:
         cons.send_note(note)
 
 short_list_cmd = Command(
-    ('_', 'shortls'),
+    ('sls', 'shortls', 'short'),
     lambda : True,
     short_list_cmd_execute
+)
+
+
+## focus list command ##########################################################
+
+def focus_list_cmd_execute() -> None:
+    # read database and send notes to console
+    # ignore notes tagged :later:
+    notes: list[db.Note] = db.get_tag_matches('mit')
+    notes += db.get_tag_matches('tod')
+
+    for note in sorted(set(notes), key=lambda n: n.id):
+        cons.send_note(note)
+
+focus_list_cmd = Command(
+    ('_', 'fls', 'focusls', 'focus'),
+    lambda : True,
+    focus_list_cmd_execute
 )
 
 
@@ -346,6 +364,7 @@ command_list = [
     add_cmd,
     list_cmd,
     short_list_cmd,
+    focus_list_cmd,
     search_cmd,
     update_cmd,
     append_cmd,

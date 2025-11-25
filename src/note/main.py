@@ -14,7 +14,7 @@ def main() -> None:
             cmd.commands[cmd_id].run()
 
         case [_]: # no args
-            cmd.commands['shortls'].run()
+            cmd.commands['focus'].run()
 
         case _, unknown, *_: 
             cons.send_error('unknown command', unknown)
