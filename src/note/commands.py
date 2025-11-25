@@ -40,10 +40,9 @@ def add_cmd_execute(args: tuple[str, ...]) -> None:
     disp_notes: list[db.Note] = sorted(
         db_notes,
         key=lambda note: note.id,
-        reverse=True, # current addition(s) at top
-    )[:len(add_note_messages)] # take same number as added
+    )[-len(add_note_messages):] # keep same number added
 
-    for note in reversed(disp_notes):
+    for note in disp_notes:
         cons.send_confirmation(note, "added")
 
 add_cmd = Command(
@@ -66,6 +65,7 @@ list_cmd = Command(
     (
         '-l', 'l', '-ls', 'ls',
         '-list', '--list', 'list',
+        'long', 'all',
     ),
     list_cmd_execute
 )
@@ -95,7 +95,7 @@ def focus_list_cmd_execute(args: tuple[str, ...]) -> None:
     notes: list[db.Note] = db.get_tag_matches('mit')
     notes += db.get_tag_matches('tod')
 
-    for note in sorted(set(notes), key=lambda n: n.id):
+    for note in sorted(set(notes), key=lambda note: note.id):
         cons.send_note(note)
 
 focus_list_cmd = Command(
