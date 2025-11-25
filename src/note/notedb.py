@@ -69,7 +69,7 @@ def get_connection() -> duckdb.DuckDBPyConnection:
     return con
 
 
-def get_notes(ids: tuple[int, ...] | None = None) -> list[Note]:
+def get_notes(ids: tuple[int, ...] = ()) -> list[Note]:
     '''Return identified notes. Return all if none identified.'''
 
     rows: list[tuple[int, datetime, str]]
