@@ -1,4 +1,3 @@
-import sys
 from importlib import metadata
 from collections.abc import Callable
 from note import notedb as db
@@ -14,20 +13,20 @@ __all__ = [
 class Command:
     def __init__(self, ids, execute_func) -> None:
         self.ids: tuple[str, ...] = ids
-        self.execute: Callable[[tuple[str,...]], None] = execute_func
+        self.execute: Callable[[tuple[str, ...]], None] = execute_func
 
-    def run(self, args: tuple[str,...] = ()):
+    def run(self, args: tuple[str, ...] = ()):
         self.execute(args)
 
 
 ## add notes command ###########################################################
 
-def add_cmd_execute(args: tuple[str,...]) -> None:
-    if len(sys.argv) < 3:
+def add_cmd_execute(args: tuple[str, ...]) -> None:
+    if len(args) < 1:
         cons.send_error('no add argument')
         return
 
-    add_note_messages: list[str] = sys.argv[2:]
+    add_note_messages: tuple[str, ...] = args
 
     db.create_notes(add_note_messages)
 
@@ -108,11 +107,11 @@ focus_list_cmd = Command(
 ## search (general) command ####################################################
 
 def search_cmd_execute(args: tuple[str, ...]) -> None:
-    if len(sys.argv) < 3:
+    if len(args) < 1:
         cons.send_error('no search argument')
         return
 
-    match: str = sys.argv[2]
+    match: str = args[0]
 
     for note in db.get_note_matches(match):
         cons.send_note(note)
@@ -130,11 +129,11 @@ search_cmd = Command(
 ## tag search command ##########################################################
 
 def tag_cmd_execute(args: tuple[str, ...]) -> None:
-    if len(sys.argv) < 3:
+    if len(args) < 1:
         cons.send_error('no search argument', 'tag')
         return
 
-    tag: str = sys.argv[2]
+    tag: str = args[0]
 
     for note in db.get_tag_matches(tag):
         cons.send_note(note)
@@ -148,11 +147,11 @@ tag_cmd = Command(
 ## update command ##############################################################
 
 def update_cmd_execute(args: tuple[str, ...]) -> None:
-    if len(sys.argv) < 4:
+    if len(args) < 2:
         cons.send_error('not enough update arguments', 'nid message')
         return
 
-    upd_note_id: str = sys.argv[2]
+    upd_note_id: str = args[0]
 
     # valid note id?
     try:
@@ -165,13 +164,13 @@ def update_cmd_execute(args: tuple[str, ...]) -> None:
         cons.send_error('not a valid note', str(id))
         return
 
-    message: str = sys.argv[3]
+    message: str = args[1]
 
     # update note
     db.update_note(id, message)
 
     # read note back from database and send confirmation
-    confirmation_note, *_ = db.get_notes([id])
+    confirmation_note, *_ = db.get_notes((id,))
     cons.send_confirmation(confirmation_note, "updated")
 
 update_cmd = Command(
@@ -186,11 +185,11 @@ update_cmd = Command(
 ## append command ##############################################################
 
 def append_cmd_execute(args: tuple[str, ...]) -> None:
-    if len(sys.argv) < 4:
+    if len(args) < 2:
         cons.send_error('not enough append arguments', 'nid extension')
         return
 
-    app_note_id: str = sys.argv[2]
+    app_note_id: str = args[0]
 
     # valid note id?
     try:
@@ -203,16 +202,16 @@ def append_cmd_execute(args: tuple[str, ...]) -> None:
         cons.send_error('not a valid note', str(id))
         return
 
-    s: str = sys.argv[3]
+    s: str = args[1]
 
     # retrieve note
-    original_note, *_ = db.get_notes([id])
+    original_note, *_ = db.get_notes((id,))
 
     # update note with appended message
     db.update_note(id, original_note.message + ' ' + s)
 
     # read note back from database and send confirmation
-    confirmation_note, *_ = db.get_notes([id])
+    confirmation_note, *_ = db.get_notes((id,))
     cons.send_confirmation(confirmation_note, "appended")
 
 append_cmd = Command(
@@ -225,15 +224,15 @@ append_cmd = Command(
 # delete selected database entries
 
 def delete_cmd_execute(args: tuple[str, ...]) -> None:
-    if len(sys.argv) < 3:
+    if len(args) < 1:
         cons.send_error('no delete argument', 'nid')
         return
 
     # check nid args
-    note_ids: list[str] = sys.argv[2:]
+    note_ids: tuple[str, ...] = args
 
     try:
-        ids: list[int] = [int(nid.strip()) for nid in note_ids]
+        ids: tuple[int, ...] = tuple(int(nid.strip()) for nid in note_ids)
     except ValueError:
         cons.send_error('invalid input')
         return

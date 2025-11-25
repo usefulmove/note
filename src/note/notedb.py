@@ -69,7 +69,7 @@ def get_connection() -> duckdb.DuckDBPyConnection:
     return con
 
 
-def get_notes(ids: list[int] | None = None) -> list[Note]:
+def get_notes(ids: tuple[int, ...] | None = None) -> list[Note]:
     '''Return identified notes. Return all if none identified.'''
 
     rows: list[tuple[int, datetime, str]]
@@ -114,7 +114,7 @@ def get_notes(ids: list[int] | None = None) -> list[Note]:
     return notes
 
 
-def delete_notes(ids: list[int]) -> None:
+def delete_notes(ids: tuple[int, ...]) -> None:
     '''Delete identified notes.'''
 
     with get_connection() as con:
@@ -249,8 +249,8 @@ def update_note(id: int, message: str) -> None:
         con.execute(query, [message, id])
 
 
-def create_notes(entries: list[str]) -> None:
-    '''Add notes to database using note text inputs (list[str]).'''
+def create_notes(entries: tuple[str, ...]) -> None:
+    '''Add notes to database using note text inputs.'''
 
     with get_connection() as con:
         for message in entries:
