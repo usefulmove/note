@@ -299,7 +299,7 @@ def version_cmd_execute(args: tuple[str, ...]) -> None:
     cons.send_version(metadata.version("note"))
 
 version_cmd = Command(
-    ('version', '-version', '--version'),
+    ('version', 'v', '-version', '--version'),
     version_cmd_execute
 )
 
