@@ -1,7 +1,5 @@
-delete ... returning  
 choose name  
-code review updates
 os.path.join(os.path.expanduser(DB_PATH), DB_FILENAME)
-combine multiple deletes into one query  
-unit tests
+code review updates
 add usage
+unit tests
