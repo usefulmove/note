@@ -119,16 +119,26 @@ def get_notes(ids: tuple[int, ...] = ()) -> list[Note]:
     return notes
 
 
-def delete_notes(ids: tuple[int, ...]) -> None:
+def delete_notes(ids: tuple[int, ...]) -> list[Note]:
     '''Delete identified notes.'''
 
+    rows: list[tuple[int, datetime, str]]
+
+    query_insert: str = ', '.join('?' for _ in ids)
+
+    query = f"""
+    delete from {TABLE}
+    where {NID_COLUMN} in ({query_insert})
+    returning *;
+    """
+
     with get_connection() as con:
-        for id in ids:
-            query = f"""
-            delete from {TABLE}
-            where {NID_COLUMN} = ?;
-            """
-            con.execute(query, [id])
+        rows = con.execute(query, ids).fetchall()
+
+    # covert each tuple into a Note
+    notes: list[Note] = [Note(*row) for row in rows]
+
+    return notes
 
 
 def clear_database() -> None:

@@ -238,11 +238,8 @@ def delete_cmd_execute(args: tuple[str, ...]) -> None:
             cons.send_error('not a valid note', str(id))
             return
 
-    # retrieve notes (for confirmation)
-    conf_notes: list[db.Note] = db.get_notes(ids)
-
-    # delete notes
-    db.delete_notes(ids)
+    # delete notes and retrieve confirmation
+    conf_notes: list[db.Note] = db.delete_notes(ids)
 
     for note in conf_notes:
         cons.send_confirmation(note, "removed")
