@@ -1,12 +1,12 @@
-# **. simple note capture .**
+# **. simple capture .**
 
-`note` is a command-line application designed to help you capture, organize, and manage your notes without leaving the terminal. It combines `duckdb` for robust local storage and `rich` for beautiful, readable output.
+`sonia` is a command-line application designed to help you capture, organize, and manage your notes and thoughts without leaving the terminal. It combines `duckdb` for robust local storage and `rich` for beautiful, readable output.
 
 ---
 
 ## Features
 
-* **Quick Capture**: Add single or multiple notes instantly.
+* **Fast Capture**: Add single or multiple notes quickly.
 * **Search**: Full-text search to find keywords across your history.
 * **Time-Stamped**: All notes are automatically timestamped.
 * **Persistent**: Data is stored locally in a high-performance `DuckDB` file.
@@ -15,7 +15,7 @@
 ## Installation
 
 ### Option 1: From a clone (recommended)
-Install from a local checkout so you can run `note` from anywhere:
+Install from a local checkout so you can run `sonia` from anywhere:
 
 ```bash
 pipx install .
@@ -45,47 +45,47 @@ If you want to contribute or modify the source code, this project uses `uv` for 
 3.  **Run locally:**
 
     ```bash
-    python -m note list
+    python -m sonia list
     ```
 
 ## Usage
 
-Once installed, use the `note` command.
+Once installed, use the `sonia` command.
 
 
 **Add Notes**
 Add one note or multiple notes at once.
 
 ```bash
-note add "Buy milk" "Call the mechanic about the car"
+sonia add "Buy milk" "Call the mechanic about the car"
 ```
 
 **List Notes**
 View your history with IDs and timestamps.
 
 ```bash
-note list
+sonia list
 ```
 
 **Search**
 Find notes containing specific text.
 
 ```bash
-note search "mechanic"
+sonia search "mechanic"
 ```
 
 **Remove**
 Delete a note using its ID (found via `list`).
 
 ```bash
-note remove 1
+sonia remove 1
 ```
 
 **Clear All**
 *Warning: This permanently deletes all data.*
 
 ```bash
-note clear
+sonia clear
 ```
 
 ## Technologies
