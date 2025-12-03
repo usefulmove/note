@@ -1,5 +1,5 @@
-## sonia
-### . simple capture .
+# sonia
+## . simple capture .
 
 `sonia` is a command-line application designed to help you capture, organize, and manage your notes and thoughts without leaving the terminal. It combines `duckdb` for robust local storage and `rich` for beautiful, readable output.
 
