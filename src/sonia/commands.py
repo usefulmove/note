@@ -1,5 +1,6 @@
 from importlib import metadata
 from collections.abc import Callable
+from random import randrange
 from sonia import notedb as db
 from sonia import console_output as cons
 
@@ -323,6 +324,42 @@ db_cmd = Command(
 )
 
 
+## decide command ##############################################################
+def decide_cmd_execute(args: tuple[str, ...]) -> None:
+    '''Provide helpful output.'''
+    cons.send_consider_pause(3)
+    cons.send_message(decisions[randrange(len(decisions))], str(randrange(52, 98)))
+    return
+
+decide_cmd = Command(
+    ('decide',),
+    decide_cmd_execute
+)
+
+decisions = (
+    "do it",
+    "it is certain",
+    "it is decidedly so",
+    "without a doubt",
+    "definitely",
+    "rely on it",
+    "most likely",
+    "outlook good",
+    "yes",
+    "signs point to yes",
+    "reply hazy, try again",
+    "ask again later",
+    "better not tell you now",
+    "cannot predict now",
+    "focus and ask again",
+    "don't count on it",
+    "no",
+    "sources say no",
+    "outlook not so good",
+    "doubtful",
+)
+
+
 
 ## command list - register commands ##
 command_list = [
@@ -339,6 +376,7 @@ command_list = [
     rebase_cmd,
     version_cmd,
     db_cmd,
+    decide_cmd,
 ]
 
 

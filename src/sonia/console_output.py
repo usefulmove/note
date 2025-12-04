@@ -1,7 +1,8 @@
+import sys
 import re
+from time import sleep, time
 from rich.console import Console
 from sonia import notedb as db
-from time import sleep
 
 
 __all__ = [
@@ -10,6 +11,7 @@ __all__ = [
     'send_confirmation',
     'send_error',
     'send_warning',
+    'send_message',
 ]
 
 
@@ -74,6 +76,54 @@ def send_warning(warning_message: str, arg: str = '') -> None:
         console.print(f'  [{CWARN}]warning[/]: {warning_message}')
     else:
         console.print(f'  [{CWARN}]warning[/]: {warning_message} ([{CDIM}]{arg}[/])')
+
+
+def send_message(message: str, arg: str = '') -> None:
+    '''Output formatted message.'''
+
+    if arg == '':
+        console.print(f'  [{CEMPH}]{message}[/{CEMPH}]')
+    else:
+        console.print(f'  [{CEMPH}]{message}[/{CEMPH}] ([{CDIM}]{arg}[/])')
+
+
+def send_consider_pause(duration: float) -> None:
+    '''Output consider animation for specified time.'''
+
+    animation_delay: float = 0.120
+    start: float = time()
+
+    sys.stdout.write('\033[?25l') # hide cursor
+    sys.stdout.flush()
+
+    while time() - start < duration:
+        sys.stdout.write('\r  .  ')
+        sys.stdout.flush()
+        sleep(animation_delay)
+
+        sys.stdout.write('\r  .. ')
+        sys.stdout.flush()
+        sleep(animation_delay)
+
+        sys.stdout.write('\r  ...')
+        sys.stdout.flush()
+        sleep(animation_delay)
+
+        sys.stdout.write('\r   ..')
+        sys.stdout.flush()
+        sleep(animation_delay)
+
+        sys.stdout.write('\r    .')
+        sys.stdout.flush()
+        sleep(animation_delay)
+
+        sys.stdout.write('\r     ')
+        sys.stdout.flush()
+        sleep(animation_delay)
+
+    sys.stdout.write('\r')
+    sys.stdout.write('\033[?25h') # show cursor
+    sys.stdout.flush()
 
 
 def color_tags(s: str) -> str:
