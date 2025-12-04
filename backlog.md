@@ -2,6 +2,7 @@
 
 [x] modify PRODUCTION flag usage (do not require source code edit - e.g., CLI or environment flag)
 [ ] add unit tests (pytest)
+[ ] tui-enabled features (?)
 [ ] add primary key and db sequence to database
 [ ] return system error codes (error {sys.exit(1)} and success {sys.exit(0)})
 [ ] add help (usage) command
