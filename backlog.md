@@ -4,7 +4,7 @@
 [x] add tests (pytest)
 [x] add notedb tests
 [x] add commands tests
-[ ] tui features (?)
+[x] tui features (?)
 [ ] add primary key and db sequence to database
 [ ] return system error codes (error {sys.exit(1)} and success {sys.exit(0)})
 [ ] add help (usage) command
