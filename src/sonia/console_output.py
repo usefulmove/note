@@ -97,23 +97,31 @@ def send_consider_pause(duration: float) -> None:
     sys.stdout.flush()
 
     while time() - start < duration:
-        sys.stdout.write('\r    .  ')
+        sys.stdout.write('\r       ')
         sys.stdout.flush()
         sleep(animation_delay)
 
-        sys.stdout.write('\r    .. ')
+        sys.stdout.write('\r    ·  ')
         sys.stdout.flush()
         sleep(animation_delay)
 
-        sys.stdout.write('\r    ...')
+        sys.stdout.write('\r    ·· ')
         sys.stdout.flush()
         sleep(animation_delay)
 
-        sys.stdout.write('\r     ..')
+        sys.stdout.write('\r    ···')
         sys.stdout.flush()
         sleep(animation_delay)
 
-        sys.stdout.write('\r      .')
+        sys.stdout.write('\r     ··')
+        sys.stdout.flush()
+        sleep(animation_delay)
+
+        sys.stdout.write('\r      ·')
+        sys.stdout.flush()
+        sleep(animation_delay)
+
+        sys.stdout.write('\r       ')
         sys.stdout.flush()
         sleep(animation_delay)
 

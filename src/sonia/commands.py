@@ -13,7 +13,7 @@ __all__ = [
 
 class Command:
     '''Command behavior objects.'''
-    def __init__(self, ids, execute_func) -> None:
+    def __init__(self, ids: tuple[str, ...], execute_func: Callable[[tuple[str, ...]], None]) -> None:
         self.ids: tuple[str, ...] = ids
         self.execute: Callable[[tuple[str, ...]], None] = execute_func
 
@@ -27,16 +27,14 @@ class Command:
 
 ## add notes command ###########################################################
 
-def add_cmd_execute(args: tuple[str, ...]) -> None:
+def add_cmd_execute(messages: tuple[str, ...]) -> None:
     '''Add notes command execution function.'''
 
-    if len(args) < 1:
+    if len(messages) < 1:
         cons.send_error('no add argument')
         return
 
-    add_note_messages: tuple[str, ...] = args
-
-    db_notes: list[db.Note] = db.create_notes(add_note_messages)
+    db_notes: list[db.Note] = db.create_notes(messages)
 
     # send confirmation using notes read back from database
     for note in db_notes:
@@ -50,7 +48,7 @@ add_cmd = Command(
 
 ## list all notes command ##########################################################
 
-def list_cmd_execute(args: tuple[str, ...]) -> None:
+def list_cmd_execute(_: tuple[str, ...] = ()) -> None:
     '''List notes command execution function.'''
 
     # read database contents and write out to console
@@ -65,7 +63,7 @@ list_cmd = Command(
 
 ## short list command ##########################################################
 
-def short_list_cmd_execute(args: tuple[str, ...]) -> None:
+def short_list_cmd_execute(_: tuple[str, ...] = ()) -> None:
     '''Limited (short) list command execution function. Ignore :que: tagged notes.'''
 
     # read database and send notes to console
@@ -82,7 +80,7 @@ short_list_cmd = Command(
 
 ## focus list command ##########################################################
 
-def focus_list_cmd_execute(args: tuple[str, ...]) -> None:
+def focus_list_cmd_execute(_: tuple[str, ...] = ()) -> None:
     '''Focus list command execution function. Show :mit: and :tod: tagged notes.'''
 
     # read database and send notes to console
@@ -218,18 +216,16 @@ append_cmd = Command(
 ## delete command ##############################################################
 # delete selected database entries
 
-def delete_cmd_execute(args: tuple[str, ...]) -> None:
+def delete_cmd_execute(nids: tuple[str, ...]) -> None:
     '''Delete note command execution function. Delete provided note IDs (nids).'''
 
-    if len(args) < 1:
+    if len(nids) < 1:
         cons.send_error('no delete argument', 'nid')
         return
 
-    # check nid args
-    note_ids: tuple[str, ...] = args
-
+    # check nids
     try:
-        ids: tuple[int, ...] = tuple(int(nid.strip()) for nid in note_ids)
+        ids: tuple[int, ...] = tuple(int(nid.strip()) for nid in nids)
     except ValueError:
         cons.send_error('invalid input')
         return
@@ -253,7 +249,7 @@ delete_cmd = Command(
 
 ## clear command ###############################################################
 
-def clear_cmd_execute(args: tuple[str, ...]) -> None:
+def clear_cmd_execute(_: tuple[str, ...] = ()) -> None:
     '''Clear database command execution function.'''
 
     db.clear_database()
@@ -266,7 +262,7 @@ clear_cmd = Command(
 
 ## rebase command ##############################################################
 
-def rebase_cmd_execute(args: tuple[str, ...]) -> None:
+def rebase_cmd_execute(_: tuple[str, ...] = ()) -> None:
     '''Rebase note IDs command execution function.'''
 
     # update database note ids
@@ -280,7 +276,7 @@ rebase_cmd = Command(
 
 ## version command #############################################################
 
-def version_cmd_execute(args: tuple[str, ...]) -> None:
+def version_cmd_execute(_: tuple[str, ...] = ()) -> None:
     '''Version command execution function.'''
 
     cons.send_version(metadata.version("sonia"))
@@ -325,9 +321,9 @@ db_cmd = Command(
 
 
 ## decide command ##############################################################
-def decide_cmd_execute(args: tuple[str, ...]) -> None:
+def decide_cmd_execute(_: tuple[str, ...] = ()) -> None:
     '''Provide helpful output.'''
-    cons.send_consider_pause(3)
+    cons.send_consider_pause(3.8)
     cons.send_message(decisions[randrange(len(decisions))], str(randrange(52, 98)))
     return
 
