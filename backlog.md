@@ -3,7 +3,7 @@
 [x] modify PRODUCTION flag usage (do not require source code edit - e.g., CLI or environment flag)
 [x] add tests (pytest)
 [x] add notedb tests
-[ ] add commands tests
+[x] add commands tests
 [ ] tui features (?)
 [ ] add primary key and db sequence to database
 [ ] return system error codes (error {sys.exit(1)} and success {sys.exit(0)})
