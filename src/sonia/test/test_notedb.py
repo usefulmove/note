@@ -1,12 +1,6 @@
 import os
 from sonia import notedb as db
 
-# needs coverage:
-# 'get_notes',
-# 'rebase',
-# 'delete_notes',
-# 'clear_database',
-
 
 entries: tuple[str, ...] = ('test_one', 'test_two', 'test_three')
 test_path = './src/sonia/test/test.db'
@@ -25,6 +19,11 @@ def test_create_notes() -> None:
 def test_is_valid() -> None:
     assert db.is_valid(len(entries))
     assert not db.is_valid(len(entries) + 1)
+
+
+def test_get_notes() -> None:
+    notes: list[db.Note] = db.get_notes()
+    assert len(notes) == len(entries)
 
 
 def test_get_note_matches() -> None:
@@ -56,6 +55,34 @@ def test_get_tag_matches_unmatches() -> None:
 
     assert matches != unmatches
     assert matches + unmatches == len(entries)
+
+
+def test_delete_notes() -> None:
+    nids: tuple[int, int] = (1, 3)
+
+    deleted_notes: list[db.Note] = db.delete_notes(nids)
+    
+    returned_nids = tuple(note.id for note in deleted_notes)
+
+    assert nids == returned_nids
+
+    notes_a: list[db.Note] = db.get_notes()
+    notes_b: list[db.Note] = db.get_notes((2,))
+
+    assert notes_a == notes_b
+    assert len(notes_a) == 1
+
+
+def test_rebase() -> None:
+    db.rebase()
+
+    assert db.get_notes()[0].id == 1
+
+
+def test_clear_database() -> None:
+    db.clear_database()
+
+    assert not db.get_notes()
 
 
 def test_clean_up() -> None:
