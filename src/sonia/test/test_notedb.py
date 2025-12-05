@@ -3,7 +3,7 @@ from sonia import notedb as db
 
 
 entries: tuple[str, ...] = ('test_one', 'test_two', 'test_three')
-test_path = './src/sonia/test/test.db'
+test_path = './src/sonia/test/notedb_test.db'
 
 
 def test_set_path() -> None:
