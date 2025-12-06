@@ -31,7 +31,7 @@ CWARN = '#fff670'
 def send_version(version: str) -> None:
     '''Output version message using input version string.'''
 
-    console.print(f'  [{CNORM}]sonia[/] [{CEMPH}]{version}[/]')
+    console.print(f'  [{CDIM}]sonia[/] [{CEMPH}]{version}[/]')
 
 
 def send_note(note: db.Note) -> None:
