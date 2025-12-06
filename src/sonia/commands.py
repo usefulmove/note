@@ -168,7 +168,7 @@ def update_cmd_execute(args: tuple[str, ...]) -> None:
     cons.send_confirmation(confirmation_note, "updated")
 
 update_cmd = Command(
-    ('change', 'c', 'update', 'u', 'edit', 'e'),
+    ('change', 'update', 'u', 'edit', 'e'),
     update_cmd_execute
 )
 
