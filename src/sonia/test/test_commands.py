@@ -10,11 +10,6 @@ test_path = str(test_folder / 'commands_test.db')
 entries: tuple[str, ...] = ('test_one', 'test_two', 'test_three')
 
 
-def test_test_path() -> None:
-    print('test: check test path')
-    assert os.path.exists(test_folder)
-
-
 def test_setup_database() -> None:
     print('test: sonia db version')
     cmd.commands['db'].run((test_path, 'version'))

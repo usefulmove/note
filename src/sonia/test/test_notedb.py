@@ -10,10 +10,6 @@ test_path = str(test_folder / 'notedb_test.db')
 entries: tuple[str, ...] = ('test_one', 'test_two', 'test_three')
 
 
-def test_test_path() -> None:
-    assert os.path.exists(test_folder)
-
-
 def test_set_path() -> None:
     assert db.set_path(test_path)
 
