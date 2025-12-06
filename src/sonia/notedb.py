@@ -31,6 +31,11 @@ class Note(NamedTuple):
         return f'Note({self.id!r}, {self.date!r}, {self.message!r})'
 
 
+class DatabaseCorrupted(Exception):
+    '''Database corrupted exception'''
+    pass
+
+
 ## database schema ##
 SCHEMA = 'coredb'
 TABLE = 'notes'
@@ -64,9 +69,10 @@ def get_connection() -> duckdb.DuckDBPyConnection:
     # create schema and notes table
     con.execute(f'create schema if not exists {SCHEMA};')
     con.execute(f'set schema = {SCHEMA};')
+    con.execute('create sequence if not exists nid_sequence start 1;')
     con.execute(f"""
         create table if not exists {TABLE} (
-            {NID_COLUMN} integer,
+            {NID_COLUMN} integer primary key default nextval('nid_sequence'),
             {TIMESTAMP_COLUMN} timestamp,
             {MESSAGE_COLUMN} varchar
         );
@@ -271,18 +277,17 @@ def create_notes(entries: tuple[str, ...]) -> list[Note]:
     rows: list[tuple[int, datetime, str]] = []
 
     with get_connection() as con:
+        con.begin()
         for message in entries:
             query = f"""
-            insert into {SCHEMA}.{TABLE}
-                ({NID_COLUMN}, {TIMESTAMP_COLUMN}, {MESSAGE_COLUMN})
-            values (
-                (select coalesce(max({NID_COLUMN}), 0) + 1 from {TABLE}),
-                cast('{datetime.now()}' as timestamp),
-                ?
-            )
+            insert into {TABLE}
+                ({TIMESTAMP_COLUMN}, {MESSAGE_COLUMN})
+            values
+                (cast('{datetime.now()}' as timestamp), ?)
             returning *;
             """
             rows += con.execute(query, [message]).fetchall()
+        con.commit()
 
     # covert each tuple into a Note
     notes: list[Note] = [Note(*row) for row in rows]
@@ -316,7 +321,20 @@ def rebase() -> None:
     """
 
     with get_connection() as con:
-        con.execute(query)
+        con.begin()
+
+        con.execute(query) # rebase nids
+
+        # retrieve next nid in sequence
+        resp = con.execute(f'select coalesce(max({NID_COLUMN}), 0) + 1 from {TABLE}').fetchone()
+        if resp is None:
+            # should never happen due do COALESCE, but required by type checker
+            raise DatabaseCorrupted("Failed to retrieve max NID from database")
+        nid_next = resp[0]
+
+        con.execute(f'create or replace sequence nid_sequence start {nid_next}') # reset sequence
+
+        con.commit()
 
 
 def is_valid(id: int) -> bool:
