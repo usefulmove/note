@@ -1,7 +1,7 @@
-# sonia
+# esposa
 ## . simple capture .
 
-`sonia` is a command-line application designed to help you capture, organize, and manage your notes and thoughts without leaving the terminal. It combines `duckdb` for robust local storage and `rich` for beautiful, readable output.
+`esposa` is a command-line application designed to help you capture, organize, and manage your notes and thoughts without leaving the terminal. It combines `duckdb` for robust local storage and `rich` for beautiful, readable output.
 
 ---
 
@@ -16,7 +16,7 @@
 ## Installation
 
 ### Option 1: From a clone (recommended)
-Install from a local checkout so you can run `sonia` from anywhere:
+Install from a local checkout so you can run `esposa` from anywhere:
 
 ```bash
 pipx install .
@@ -33,8 +33,8 @@ If you want to contribute or modify the source code, this project uses `uv` for 
 1.  **Clone the repository:**
 
     ```bash
-    git clone [https://github.com/usefulmove/sonia.git](https://github.com/usefulmove/sonia.git)
-    cd sonia
+    git clone [https://github.com/usefulmove/esposa.git](https://github.com/usefulmove/esposa.git)
+    cd esposa
     ```
 
 2.  **Install dependencies:**
@@ -46,47 +46,47 @@ If you want to contribute or modify the source code, this project uses `uv` for 
 3.  **Run locally:**
 
     ```bash
-    python -m sonia list
+    python -m esposa list
     ```
 
 ## Usage
 
-Once installed, use the `sonia` command.
+Once installed, use the `esposa` command.
 
 
 **Add Notes**
 Add one note or multiple notes at once.
 
 ```bash
-sonia add "buy milk" "call the mechanic about the car"
+esposa add "buy milk" "call the mechanic about the car"
 ```
 
 **List Notes**
 View your history with IDs and timestamps.
 
 ```bash
-sonia list
+esposa list
 ```
 
 **Search**
 Find notes containing specific text.
 
 ```bash
-sonia search "mechanic"
+esposa search "mechanic"
 ```
 
 **Remove**
 Delete a note using its ID (found via `list`).
 
 ```bash
-sonia remove 1
+esposa remove 1
 ```
 
 **Clear All**
 *Warning: This permanently deletes all data.*
 
 ```bash
-sonia clear
+esposa clear
 ```
 
 ## Technologies
